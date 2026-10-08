@@ -1,0 +1,1451 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schematic Hub</title>
+<style>
+:root{
+  --bg:#0c0f14; --bg2:#121722; --card:#161c29; --card2:#1c2433; --line:#263044; --text:#e8edf5; --mute:#8d99b0;
+  --accent:#3ddc84; --accent2:#1fb866; --accent-ink:#06210f; --danger:#ff5d5d; --heart:#ff5d7a; --radius:14px;
+  --shadow:0 10px 30px rgba(0,0,0,.35); --hdr:rgba(12,15,20,.78);
+  --vw1:#1a2740; --vw2:#0e131c; --glow1:#16301f; --glow2:#13243a;
+}
+:root[data-theme="light"]{
+  --bg:#f2f5f9; --bg2:#e8edf4; --card:#ffffff; --card2:#f0f4f9; --line:#d5dde8; --text:#17202e; --mute:#5b6980;
+  --accent:#1fb866; --accent2:#169a55; --accent-ink:#ffffff; --danger:#d93636; --heart:#e0335a;
+  --shadow:0 10px 30px rgba(30,50,80,.12); --hdr:rgba(255,255,255,.82);
+  --vw1:#cfe3ff; --vw2:#eaf3ff; --glow1:#d6f3e2; --glow2:#d9e8fb;
+}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+html[data-theme="light"]{color-scheme:light}
+body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,var(--glow1) 0,transparent 60%),radial-gradient(900px 500px at -10% 10%,var(--glow2) 0,transparent 55%),var(--bg);
+  color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100vh;transition:background .2s,color .2s}
+a{color:var(--accent);text-decoration:none}
+button,input,textarea,select{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:var(--hdr);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:14px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:.2px;color:var(--text);cursor:pointer;white-space:nowrap}
+.cube{width:26px;height:26px;position:relative}
+.cube i{position:absolute;width:12px;height:12px;border-radius:3px}
+.cube i:nth-child(1){left:0;top:7px;background:#3ddc84}
+.cube i:nth-child(2){left:7px;top:0;background:#7be8ac}
+.cube i:nth-child(3){left:14px;top:7px;background:#1fb866}
+.cube i:nth-child(4){left:7px;top:14px;background:#2a8f55}
+nav{display:flex;gap:2px;margin-left:6px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{padding:8px 13px;border-radius:10px;color:var(--mute);font-weight:600;cursor:pointer;white-space:nowrap}
+nav a:hover{background:var(--card);color:var(--text)}
+nav a.on{background:var(--card2);color:var(--text)}
+.sp{flex:1}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 16px;font-weight:700;cursor:pointer;transition:.15s;color:var(--text)}
+.btn:hover{background:var(--card2);border-color:#34415a}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.dng{color:var(--danger)}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:9px}
+.btn:disabled{opacity:.5;cursor:default}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;display:grid;place-items:center;font-size:17px}
+.icon-btn:hover{background:var(--card2)}
+.avatar{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font-weight:800;font-size:13px;color:#fff;flex:none;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.avatar.lg{width:84px;height:84px;font-size:36px}
+.userbtn{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:700}
+.badge2{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:999px;background:var(--heart);color:#fff;font-size:11px;font-weight:800;display:none;place-items:center;padding:0 4px}
+.stars{display:inline-flex;gap:2px;font-size:24px;line-height:1;cursor:pointer;user-select:none}
+.stars span{color:var(--line);transition:.1s}
+.stars span.on{color:#ffc53d}
+.stars.ro{cursor:default}
+.nitem{display:block;padding:10px 12px;border-radius:9px;color:var(--text)!important;font-weight:500!important}
+.nitem.un{background:var(--card2)}
+.nitem small{display:block;color:var(--mute)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px;margin:20px 0 40px}
+.ccard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:.18s}
+.ccard:hover{transform:translateY(-4px);border-color:#3b4a66;box-shadow:var(--shadow)}
+.mosaic{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;aspect-ratio:16/10;gap:2px;background:var(--bg2)}
+.mosaic div{background:linear-gradient(160deg,var(--vw1),var(--vw2));overflow:hidden}
+.mosaic img{width:100%;height:100%;object-fit:cover;display:block}
+.rank{display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+.rank:hover{background:var(--card2)}
+.rank:last-child{border-bottom:0}
+.rank .n{width:26px;font-weight:900;color:var(--mute);font-size:18px}
+.rank:nth-child(1) .n{color:#ffc53d}.rank:nth-child(2) .n{color:#c0c7d2}.rank:nth-child(3) .n{color:#d08a4a}
+.rank img{width:64px;height:48px;object-fit:cover;border-radius:8px;background:var(--bg2)}
+.rank .t{flex:1;min-width:0}.rank .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toprow{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin:22px 0 50px}
+.menu{position:absolute;right:20px;top:58px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px;min-width:210px;display:none;z-index:30}
+.menu.on{display:block}
+.menu a,.menu button{display:block;width:100%;text-align:left;padding:9px 12px;border-radius:9px;color:var(--text);background:none;border:0;cursor:pointer;font-weight:600}
+.menu a:hover,.menu button:hover{background:var(--card2)}
+.menu hr{border:0;border-top:1px solid var(--line);margin:6px 0}
+.hero{padding:44px 0 18px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:30px;align-items:center}
+@media(max-width:900px){.hero{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(34px,5.5vw,56px);line-height:1.05;margin:0 0 14px;font-weight:900;letter-spacing:-1px}
+.hero h1 b{background:linear-gradient(90deg,#3ddc84,#42b8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mute);font-size:18px;max-width:600px;margin:0 0 20px}
+.hv{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,var(--vw1),var(--vw2));aspect-ratio:4/3;box-shadow:var(--shadow)}
+.hv canvas{width:100%;height:100%;display:block}
+.hv .cap{position:absolute;left:12px;bottom:10px;right:12px;display:flex;justify-content:space-between;gap:10px;align-items:end;pointer-events:none}
+.hv .cap a{pointer-events:auto;background:rgba(0,0,0,.55);color:#fff;padding:6px 12px;border-radius:999px;font-weight:700;font-size:14px;backdrop-filter:blur(6px)}
+.hv .badge{position:absolute;top:12px;left:12px;background:var(--accent);color:var(--accent-ink);padding:4px 10px;border-radius:999px;font-weight:800;font-size:12px}
+.statrow{display:flex;gap:26px;flex-wrap:wrap;margin:6px 0 22px}
+.statrow div{min-width:90px}
+.statrow b{display:block;font-size:26px;letter-spacing:-.5px}
+.statrow span{color:var(--mute);font-size:13px}
+.search{display:flex;gap:10px;flex-wrap:wrap}
+.search input{flex:1;min-width:220px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;outline:none}
+.search input:focus{border-color:var(--accent)}
+select{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 8px}
+.chip{padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--mute);font-size:14px;cursor:pointer}
+.chip:hover,.chip.on{border-color:var(--accent);color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));gap:18px;margin:20px 0 28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:.18s;display:flex;flex-direction:column;position:relative}
+.card:hover{transform:translateY(-4px);border-color:#3b4a66;box-shadow:var(--shadow)}
+.thumb{aspect-ratio:4/3;background:linear-gradient(160deg,var(--vw1),var(--vw2));display:grid;place-items:center;position:relative;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .ph{color:var(--mute);font-size:13px;opacity:.7}
+.lock{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;padding:3px 8px;font-size:12px}
+.heart{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.55);color:#fff;border:0;border-radius:999px;padding:5px 11px;cursor:pointer;font-weight:700;font-size:13px;backdrop-filter:blur(6px)}
+.heart:hover{background:rgba(0,0,0,.75)}
+.heart.on{color:var(--heart)}
+.info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px}
+.info h3{margin:0;font-size:17px;line-height:1.25}
+.meta{color:var(--mute);font-size:13px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.by{display:flex;align-items:center;gap:6px}
+.by:hover span{color:var(--accent)}
+.empty{padding:60px 0;text-align:center;color:var(--mute)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.detail{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px;margin:26px 0 60px}
+@media(max-width:860px){.detail{grid-template-columns:1fr}}
+.tabs2{display:flex;gap:6px;margin-bottom:12px}
+.tabs2 button{padding:8px 16px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:700;color:var(--mute)}
+.tabs2 button.on{background:var(--card2);color:var(--text);border-color:var(--accent)}
+.viewer{position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,var(--vw1),var(--vw2));aspect-ratio:4/3;min-height:300px}
+.viewer:fullscreen{aspect-ratio:auto;border-radius:0}
+.viewer canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.viewer .hint{position:absolute;bottom:10px;left:12px;font-size:12px;color:var(--mute);pointer-events:none}
+.viewer .msg{position:absolute;inset:0;display:grid;place-items:center;color:var(--mute);text-align:center;padding:20px}
+.vtools{position:absolute;top:10px;right:10px;display:flex;gap:6px}
+.vtools button{width:34px;height:34px;border-radius:9px;border:0;background:rgba(0,0,0,.5);color:#fff;cursor:pointer;font-size:15px;backdrop-filter:blur(6px)}
+.vtools button:hover{background:rgba(0,0,0,.72)}
+.vtools button.off{opacity:.45}
+.clip{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.clip label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mute);font-weight:600}
+.clip input[type=range]{width:160px;accent-color:var(--accent)}
+.plan{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);padding:16px}
+.plan canvas{max-width:100%;display:block;image-rendering:pixelated;border-radius:8px;border:1px solid var(--line);background:var(--bg2)}
+.planwrap{overflow:auto;max-height:560px;position:relative}
+.plan .row2{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.plan input[type=range]{flex:1;min-width:140px;accent-color:var(--accent)}
+.chips2{display:flex;flex-wrap:wrap;gap:4px}
+.lc{min-width:30px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--bg2);color:var(--mute);font-size:12px;font-weight:700;cursor:pointer;padding:0 6px}
+.lc.d{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.lc.c{outline:2px solid #42b8ff;outline-offset:1px}
+.cardbar{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(0,0,0,.35)}
+.cardbar i{display:block;height:100%;background:var(--accent)}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 14px;margin-top:12px;font-size:14px}
+.legend div{display:flex;align-items:center;gap:8px}
+.legend span:last-child{margin-left:auto;color:var(--mute)}
+.tip{position:fixed;pointer-events:none;background:rgba(0,0,0,.85);color:#fff;padding:5px 9px;border-radius:8px;font-size:13px;z-index:70;display:none;white-space:nowrap}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+@media(max-width:560px){.photos{grid-template-columns:1fr}}
+.photos figure{margin:0;border-radius:12px;overflow:hidden;border:1px solid var(--line);cursor:zoom-in;position:relative;background:var(--bg2)}
+.photos img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover;transition:transform .25s}
+.photos figure:hover img{transform:scale(1.04)}
+.photos figcaption{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
+h2{margin:0 0 6px;font-size:28px;letter-spacing:-.4px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-size:19px}
+.stat span{color:var(--mute);font-size:12px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.tag{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--mute);cursor:pointer}
+.tag:hover{border-color:var(--accent);color:var(--accent)}
+ol.steps{padding-left:20px;margin:8px 0;color:var(--mute)}
+ol.steps li{margin:4px 0}
+code{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13px;color:var(--text)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:6px 4px;border-bottom:1px solid var(--line)}
+td:last-child{text-align:right;color:var(--mute);white-space:nowrap}
+.ic{width:22px;height:22px;image-rendering:pixelated;vertical-align:middle;margin-right:8px;border-radius:3px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px;border:1px solid rgba(255,255,255,.15)}
+.mats{max-height:360px;overflow:auto}
+.mats input[type=checkbox]{margin-right:10px;accent-color:var(--accent);width:16px;height:16px;vertical-align:middle}
+tr.done td{opacity:.45;text-decoration:line-through}
+.progress{height:8px;background:var(--bg2);border-radius:999px;overflow:hidden;margin:8px 0 12px;border:1px solid var(--line)}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#42b8ff);width:0;transition:width .3s}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{background:var(--card);border:0;padding:6px 12px;cursor:pointer;font-weight:700;color:var(--mute);font-size:13px}
+.seg button.on{background:var(--card2);color:var(--text)}
+form.upl{display:grid;gap:16px;max-width:680px;margin:28px 0 60px}
+label{display:grid;gap:6px;font-weight:600;font-size:14px}
+input[type=text],input[type=password],textarea{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;outline:none;width:100%}
+input:focus,textarea:focus{border-color:var(--accent)}
+.drop{border:2px dashed #34415a;border-radius:var(--radius);padding:34px;text-align:center;color:var(--mute);cursor:pointer;transition:.15s}
+.drop.over,.drop:hover{border-color:var(--accent);color:var(--accent);background:rgba(61,220,132,.05)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.filelist{display:grid;gap:8px}
+.fitem{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px}
+.fitem .progress{margin:6px 0 0;height:6px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;place-items:center;z-index:50;padding:16px}
+.modal.on{display:grid}
+.modal .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;width:min(440px,100%);box-shadow:var(--shadow);max-height:92vh;overflow:auto}
+.tabs{display:flex;gap:6px;margin-bottom:16px}
+.tabs button{flex:1}
+.err{color:var(--danger);font-size:14px;min-height:20px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--line);padding:12px 18px;border-radius:12px;box-shadow:var(--shadow);z-index:80;display:none}
+.mute{color:var(--mute)}
+.comments .c{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.comments .c:last-child{border-bottom:0}
+.comments .who{font-weight:700}
+.comments .when{color:var(--mute);font-size:12px;margin-left:8px;font-weight:400}
+.comments .txt{white-space:pre-wrap;word-break:break-word}
+.profile{display:flex;gap:22px;align-items:center;flex-wrap:wrap;padding:40px 0 10px}
+.bar-top{height:12px;border-radius:999px;overflow:hidden;display:flex;margin:10px 0 4px;border:1px solid var(--line)}
+.bar-top i{display:block;height:100%}
+.skeleton{background:linear-gradient(90deg,var(--card) 25%,var(--card2) 50%,var(--card) 75%);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:var(--radius);height:260px}
+@keyframes sk{to{background-position:-200% 0}}
+footer{border-top:1px solid var(--line);padding:26px 0;color:var(--mute);font-size:14px}
+#printarea{display:none}
+.tutbox{background:var(--bg2);border:1px solid var(--accent);border-radius:12px;padding:12px 14px;margin:10px 0}
+@media print{body>*:not(#printarea){display:none!important}#printarea{display:block!important;color:#000;background:#fff}#printarea .pp{page-break-after:always;break-after:page}#printarea img{max-width:100%;image-rendering:pixelated}#printarea ul{columns:2;font-size:12px}body{background:#fff}}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+  <div class="logo" id="logo"><div class="cube"><i></i><i></i><i></i><i></i></div>Schematic Hub</div>
+  <nav>
+    <a data-nav="#/">Entdecken</a><a data-nav="#/top">Rangliste</a><a data-nav="#/collections">Sammlungen</a><a data-nav="#/feed">Feed</a><a data-nav="#/upload">Hochladen</a><a data-nav="#/mod">Blueprint-Mod</a>
+  </nav>
+  <div class="sp"></div>
+  <button class="icon-btn" id="bell" title="Benachrichtigungen" style="display:none;position:relative">🔔<span id="badge" class="badge2"></span></button>
+  <button class="icon-btn" id="lang" title="Sprache / Language" style="font-size:13px;font-weight:800">EN</button><button class="icon-btn" id="theme" title="Hell/Dunkel">☾</button>
+  <div id="auth"></div>
+</div>
+<div class="menu" id="menu"></div><div class="menu" id="nmenu" style="width:340px;max-height:70vh;overflow:auto"></div></header>
+<main class="wrap" id="app"></main>
+<footer><div class="wrap">Schematic Hub &middot; Baupl&auml;ne f&uuml;r Minecraft mit Litematica &middot; Lade nur Dateien hoch, die du teilen darfst. &middot; Tipp: Mit <code>/</code> springst du zur Suche.</div></footer>
+
+<div class="modal" id="modal"><div class="box">
+  <div class="tabs"><button class="btn pri" id="tab-login">Einloggen</button><button class="btn" id="tab-reg">Konto erstellen</button></div>
+  <form id="authform" autocomplete="on">
+    <label>Name<input type="text" id="a-name" autocomplete="username" maxlength="20" required></label>
+    <label style="margin-top:12px">Passwort<input type="password" id="a-pass" autocomplete="current-password" minlength="8" required></label>
+    <label id="a-invite-row" style="margin-top:12px;display:none">Einladungscode<input type="text" id="a-invite" autocomplete="off"></label>
+    <div class="err" id="a-err"></div>
+    <div class="row" style="margin-top:6px"><button class="btn pri" id="a-submit" type="submit">Einloggen</button><button class="btn" type="button" id="a-cancel">Abbrechen</button></div>
+  </form>
+</div></div>
+<div class="modal" id="modal2"><div class="box" id="box2"></div></div>
+<div id="printarea"></div>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"></div>
+<script src="/static/three.min.js"></script>
+<script>
+"use strict";
+if (location.protocol === 'file:') { document.body.innerHTML = '<div style="max-width:560px;margin:80px auto;padding:0 20px;font:16px/1.5 -apple-system,sans-serif;color:#e8edf5"><h1>Bitte nicht diese Datei \u00f6ffnen</h1><p>Die Seite braucht ihren Server. Starte sie mit einem Doppelklick auf <b>SchematicHub.command</b>. Dann \u00f6ffnet sie sich von selbst unter <b>http://127.0.0.1:8080</b>.</p></div>'; document.body.style.background='#0c0f14'; throw new Error('file protocol'); }
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let me = null;
+let SITE = {invite:false, public:false};
+let viewer = null, heroViewer = null;
+
+async function api(path, opts={}) {
+  const o = Object.assign({method:'GET', headers:{}}, opts);
+  if (o.method !== 'GET') o.headers['X-Requested-With'] = 'hub';
+  let r;
+  try { r = await fetch(path, o); }
+  catch (e) { throw new Error('Der Server ist nicht erreichbar. Läuft das Fenster von Start.command noch? Sonst nochmal starten und diese Seite neu laden.'); }
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || 'Fehler ' + r.status);
+  return data;
+}
+const post = (path, body) => api(path, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body||{})});
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toast.t); toast.t=setTimeout(()=>t.style.display='none',3200); }
+function fmtSize(b){ return b>1048576 ? (b/1048576).toFixed(1)+' MB' : Math.max(1,Math.round(b/1024))+' KB'; }
+function fmtDate(t){ return new Date(t*1000).toLocaleDateString(LANG==='en'?'en-US':'de-DE'); }
+function ago(t){ const s=Math.max(1,Math.floor(Date.now()/1000-t)); if(s<60) return 'gerade eben'; if(s<3600) return 'vor '+Math.floor(s/60)+' Min'; if(s<86400) return 'vor '+Math.floor(s/3600)+' Std'; if(s<86400*30) return 'vor '+Math.floor(s/86400)+' Tagen'; return fmtDate(t); }
+function nice(n){ return n.replace(/_/g,' ').replace(/^./,c=>c.toUpperCase()); }
+function num(n){ return Number(n).toLocaleString(LANG==='en'?'en-US':'de-DE'); }
+function avatar(name, cls='', ver=0){
+  if (ver > 0) return '<span class="avatar '+cls+'" style="background:#2a3347 url(/api/users/'+encodeURIComponent(name)+'/avatar?v='+ver+') center/cover"></span>';
+  let h=0; for (const ch of name) h=(h*31+ch.charCodeAt(0))%360; return '<span class="avatar '+cls+'" style="background:hsl('+h+',55%,45%)">'+esc(name[0].toUpperCase())+'</span>'; }
+function countUp(el, to){ const t0=performance.now(); (function f(t){ const k=Math.min(1,(t-t0)/700); el.textContent=num(Math.round(to*(1-Math.pow(1-k,3)))); if(k<1) requestAnimationFrame(f); })(t0); }
+async function copyText(text, msg){ try { await navigator.clipboard.writeText(text); toast(msg||'Kopiert!'); } catch(e){ toast('Kopieren nicht möglich'); } }
+
+
+// ---------------------------------------------------------------- Sprache (Deutsch / Englisch)
+let LANG = 'de'; try { LANG = localStorage.getItem('hub.lang') || ((navigator.language||'de').startsWith('de') ? 'de' : 'en'); } catch(e){}
+const EN = {};      // wird unten gefuellt: deutscher Text -> englischer Text
+const PATS = [];    // [RegExp, Funktion] fuer Texte mit Zahlen
+const missing = new Set();
+function trText(s){
+  if (EN[s] !== undefined) return EN[s];
+  for (const [re, fn] of PATS){ const m = s.match(re); if (m) return fn(m); }
+  return null;
+}
+function trString(s){ if (LANG !== 'en') return s; const lead = s.match(/^\s*/)[0], tail = s.match(/\s*$/)[0]; const core = s.trim(); if (!core) return s; const t = trText(core); return t === null ? s : lead + t + tail; }
+const ATTRS = ['placeholder','title','alt','aria-label'];
+function translateNode(n){
+  if (n.nodeType === 3) {
+    const p = n.parentNode; if (!p || /^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName)) return;
+    if (n.__en !== undefined && n.nodeValue === n.__en) { if (LANG !== 'en') { n.nodeValue = n.__de; delete n.__en; } return; }
+    const orig = n.nodeValue; if (!orig.trim()) return;
+    if (LANG !== 'en') return;
+    const t = trString(orig);
+    if (t === orig) { const c = orig.trim(); if (/[A-Za-zÄÖÜäöüß]{3,}/.test(c)) missing.add(c); return; }
+    n.__de = orig; n.__en = t; n.nodeValue = t;
+  } else if (n.nodeType === 1) {
+    if (/^(SCRIPT|STYLE)$/.test(n.nodeName)) return;
+    for (const a of ATTRS) { if (!n.hasAttribute(a)) continue; const key='data-de-'+a; if (!n.hasAttribute(key)) { if (LANG==='en') { const v=n.getAttribute(a); const t=trString(v); if (t!==v) { n.setAttribute(key, v); n.setAttribute(a, t); } else if (/[A-Za-z]{3,}/.test(v)) missing.add(v); } } else { const orig=n.getAttribute(key); if (LANG==='en') { const t=trString(orig); if (n.getAttribute(a)!==t) n.setAttribute(a,t); } else { n.setAttribute(a, orig); n.removeAttribute(key); } } }
+    for (const c of n.childNodes) translateNode(c);
+  }
+}
+let i18nBusy = false;
+const i18nObs = new MutationObserver(muts => { if (i18nBusy) return; i18nBusy = true; try { for (const m of muts) { if (m.type === 'characterData') translateNode(m.target); else if (m.type === 'attributes') translateNode(m.target); else m.addedNodes.forEach(translateNode); } } finally { i18nBusy = false; } });
+function startI18n(){ i18nObs.observe(document.body, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:ATTRS}); translateNode(document.body); document.documentElement.lang = LANG; document.title = trString(document.title); }
+function setLang(l){ LANG = l; try{localStorage.setItem('hub.lang', l);}catch(e){} i18nBusy = true; try { translateNode(document.body); } finally { i18nBusy = false; } document.documentElement.lang = l; $('#lang').textContent = l==='en' ? 'DE' : 'EN'; if (l==='de') { route(); } else { document.title = trString(document.title); route(); } }
+const LOCALE = () => LANG === 'en' ? 'en-US' : 'de-DE';
+
+Object.assign(EN, {
+// Navigation und Kopf
+'Entdecken':'Discover','Rangliste':'Leaderboard','Sammlungen':'Collections','Feed':'Feed','Hochladen':'Upload','Blueprint-Mod':'Blueprint mod','Meine':'My','Favoriten':'Favorites',
+'Benachrichtigungen':'Notifications','Sprache / Language':'Sprache / Language','Hell/Dunkel':'Light/Dark','Einloggen':'Log in','Ausloggen':'Log out','Konto erstellen':'Create account',
+'Mein Profil':'My profile','Meine Schematics':'My schematics','Einstellungen':'Settings','Admin: Meldungen':'Admin: reports','Keine Benachrichtigungen.':'No notifications.',
+'Schematic Hub · Baupläne für Minecraft mit Litematica · Lade nur Dateien hoch, die du teilen darfst. · Tipp: Mit':'Schematic Hub · Blueprints for Minecraft with Litematica · Only upload files you are allowed to share. · Tip: press',
+'springst du zur Suche.':'to jump to the search.',
+// Startseite
+'Baupläne für':'Blueprints for','Finden, ansehen, bauen.':'Find, view, build.','Bau des Moments':'Build of the moment',
+'Lade Schematics von anderen Spielern herunter, sieh sie in 3D mit echten Blöcken an und baue sie Ebene für Ebene nach.':'Download schematics from other players, view them in 3D with real blocks and build them layer by layer.',
+'Schematics':'Schematics','Bauer':'Builders','Downloads':'Downloads','Blöcke':'Blocks','Blöcke gebaut':'Blocks built',
+'Suche nach Name, Tag oder Autor …  ( / )':'Search by name, tag or author …  ( / )','Neueste':'Newest','Beliebteste (Likes)':'Most liked','Meiste Downloads':'Most downloads','Beste Bewertung':'Best rated',
+'Meist gesehen':'Most viewed','Größte':'Largest','Älteste':'Oldest','Mehr laden':'Load more','Noch nichts gefunden.':'Nothing found yet.','Vorschau lädt …':'Loading preview …','Keine Vorschau':'No preview','Privat':'Private',
+'Gefällt mir':'Like','♡ Gefällt mir':'♡ Like','Meine Favoriten':'My favorites','Dein':'Your','Die':'The','Meine Sammlungen':'My collections',
+'Du hast noch nichts hochgeladen.':'You have not uploaded anything yet.','Noch keine Favoriten. Tippe auf das Herz bei einem Schematic.':'No favorites yet. Tap the heart on a schematic.',
+// Rangliste, Feed, Sammlungen
+'Diese Woche beliebt':'Popular this week','Top-Bauer':'Top builders','Noch nichts hier.':'Nothing here yet.','Bitte einloggen':'Please log in',
+'Im Feed siehst du neue Schematics von Bauern, denen du folgst.':'In the feed you see new schematics from builders you follow.',
+'Hier erscheinen neue Schematics von Bauern, denen du folgst. Besuche ein Profil und tippe auf „Folgen“.':'New schematics from builders you follow appear here. Visit a profile and tap “Follow”.',
+'+ Neue Sammlung':'+ New collection','Alle öffentlichen Sammlungen':'All public collections','Noch keine Sammlungen.':'No collections yet.','Du hast noch keine Sammlung. Lege eine an!':'You have no collection yet. Create one!',
+'Neue Sammlung':'New collection','Sammlung bearbeiten':'Edit collection','Name':'Name','Beschreibung':'Description','Anlegen':'Create','Abbrechen':'Cancel','Speichern':'Save','← Alle Sammlungen':'← All collections',
+'Diese Sammlung ist noch leer.':'This collection is empty.','Entfernen':'Remove','Sammlung löschen? Die Schematics bleiben erhalten.':'Delete collection? The schematics are kept.','Admin · Meldungen':'Admin · Reports',
+'Keine offenen Meldungen.':'No open reports.','Ansehen':'View','Inhalt löschen':'Delete content','Ablehnen':'Dismiss','Nur für Admins':'Admins only',
+// Detailseite
+'3D-Ansicht':'3D view','Ebenen-Plan':'Layer plan','Ziehen = drehen · Scrollen = zoomen':'Drag = rotate · Scroll = zoom','Drehen an/aus':'Rotate on/off','Raster':'Grid','Screenshot':'Screenshot','Vollbild':'Fullscreen','Ansicht zurücksetzen':'Reset view',
+'Von Ebene':'From layer','Bis Ebene':'To layer','Materialliste':'Materials list','Anzahl':'Count','Stacks':'Stacks','Shulker':'Shulker','Liste kopieren':'Copy list','Als CSV laden':'Download CSV','Haken zurücksetzen':'Reset checks',
+'Fotos aus der Base':'Photos from the base','Fotos werden gemacht …':'Taking photos …','Außenansicht':'Exterior view','Als Titelbild':'Set as cover','Foto speichern':'Save photo','Schließen':'Close',
+'Kommentare':'Comments','Noch keine Kommentare.':'No comments yet.','Schreibe einen Kommentar …':'Write a comment …','Kommentar senden':'Post comment','Einloggen, um zu kommentieren':'Log in to comment','Löschen':'Delete','Melden':'Report',
+'Größe':'Size','Aufrufe':'Views','Likes':'Likes','Gefällt dir':'You like this','Teilen':'Share','+ Sammlung':'+ Collection','Bearbeiten':'Edit','Noch keine Bewertung':'No ratings yet','Bewerten':'Rate',
+'Den eigenen Bau kannst du nicht bewerten':'You cannot rate your own build','Link kopieren':'Copy link','bearbeitet':'edited','privat':'private','So baust du es':'How to build it','Kopieren':'Copy',
+'Datei herunterladen und in den Ordner':'Download the file and put it in the folder','deines Minecraft-Profils legen.':'of your Minecraft profile.','Im Spiel':'In game','Im Spiel:':'In game:','drücken,':'press','wählen und die Datei laden.':'choose and load the file.',
+'Mit der Blueprint-Mod geht es direkt von dieser Seite, ohne Datei kopieren:':'With the Blueprint mod you can load it straight from this page, no file copying:',
+'Die Seite muss dabei laufen. Danach richtet sich die Blaupause von selbst auf dein Gebäude aus.':'The site has to be running for this. Afterwards the blueprint aligns itself with your building.',
+'Schematic bearbeiten':'Edit schematic','Titel':'Title','Tags (mit Komma)':'Tags (comma separated)','Titelbild (optional, wird zugeschnitten)':'Cover image (optional, will be cropped)','Titelbild entfernen':'Remove cover image','Für alle sichtbar':'Visible to everyone',
+'Zu Sammlung hinzufügen':'Add to collection','Noch keine Sammlung.':'No collection yet.','Neue Sammlung …':'New collection …','Fertig':'Done','Schematic melden':'Report schematic','Kommentar melden':'Report comment','Was ist das Problem?':'What is the problem?','Meldung senden':'Send report',
+'Vorschau nicht verfügbar.':'Preview not available.','Für diese Datei gibt es keine Vorschau (zu groß).':'There is no preview for this file (too large).',' · vereinfachte Vorschau':' · simplified preview',
+// Ebenen-Plan
+'Bau-Fortschritt':'Build progress','Ebene':'Layer','Ebene fertig':'Layer done','Als Bild':'As image','Alle Ebenen drucken':'Print all layers','Schritt-für-Schritt-Anleitung':'Step-by-step guide','Anleitung beenden':'End guide','Beenden':'End','← Zurück':'← Back','Weiter →':'Next →',
+'Ansicht von oben, Norden ist oben. Mit der Maus über einen Block fahren zeigt seinen Namen. Ebene 1 ist die unterste.':'View from above, north is up. Hover over a block to see its name. Layer 1 is the lowest.',
+'Gelb umrandet sind die Felder, auf die du diesen Block jetzt setzt. Tasten: ← →':'The yellow outlined cells are where you place this block now. Keys: ← →','Diese Ebene ist leer.':'This layer is empty.','Luft':'Air',
+'Keine Ebenen-Daten.':'No layer data.','Geschafft! Alle Schritte durch.':'Done! All steps completed.',
+// Konto
+'Passwort':'Password','Einladungscode':'Invitation code','Der Einladungscode ist falsch.':'The invitation code is wrong.','Die Vorschau nutzt selbst gezeichnete Texturen im Minecraft-Stil. Minecraft ist eine Marke von Mojang, diese Seite ist nicht mit Mojang verbunden.':'The preview uses self-drawn textures in a Minecraft style. Minecraft is a trademark of Mojang, this site is not affiliated with Mojang.','Altes Passwort':'Old password','Neues Passwort (mind. 8 Zeichen)':'New password (min. 8 characters)','Passwort ändern':'Change password','Passwort speichern':'Save password','Profilbild':'Profile picture','Bild wählen':'Choose image',
+'Konto löschen':'Delete account','Alle deine Schematics, Kommentare und Likes werden unwiderruflich gelöscht.':'All your schematics, comments and likes will be deleted permanently.','Passwort zur Bestätigung':'Password to confirm','Konto endgültig löschen':'Delete account permanently',
+'Folgen':'Follow','Folge ich':'Following','Follower':'Followers','Folgt':'Following','Abbrechen ':'Cancel',
+// Hochladen
+'Schematics hochladen':'Upload schematics','.litematic hierher ziehen oder klicken':'Drop .litematic here or click','.litematic, .schem (WorldEdit) oder .nbt · auch mehrere auf einmal · je bis 25 MB':'.litematic, .schem (WorldEdit) or .nbt · several at once · up to 25 MB each',
+'Beschreibung (für alle gewählten Dateien)':'Description (for all chosen files)','Tags (mit Komma getrennt)':'Tags (comma separated)','Bitte zuerst eine Datei wählen.':'Please choose a file first.','Nur .litematic-, .schem- oder .nbt-Dateien.':'Only .litematic, .schem or .nbt files.',
+'Bitte einen Titel angeben.':'Please enter a title.','Hochladen ':'Upload','Hochgeladen!':'Uploaded!',
+// Mod-Seite
+'Die':'The','Zeigt ein Schematic als Blaupause direkt in deiner Welt und richtet es automatisch auf dein Gebäude aus. Nur eine Anzeige, es wird nichts an den Server gesendet.':'Shows a schematic as a blueprint right in your world and aligns it with your building automatically. Display only, nothing is sent to the server.',
+'Was sie kann':'What it can do','Blöcke als farbige Kasten anzeigen:':'Show blocks as coloured boxes:','grün':'green','= richtig,':'= correct,','orange':'orange','= falsch gedreht,':'= wrongly rotated,','rot':'red','= falscher Block im Weg':'= wrong block in the way',
+'Automatisch ausrichten: sie erkennt schon gebaute Blöcke und passt Position und Drehung an':'Auto-align: it recognises blocks you already built and adjusts position and rotation','Beim Draufschauen steht der Blockname darüber':'The block name is shown above it when you look at it',
+'Ebenen einzeln anzeigen, Materialliste im Chat':'Show single layers, materials list in chat','Fortschrittsanzeige oben links im Spiel: „432 / 1254 (34 %)“ mit Balken':'Progress display at the top left in game: “432 / 1254 (34 %)” with a bar','Schematics direkt von dieser Seite laden':'Load schematics straight from this site',
+'Befehle':'Commands','Von dieser Seite laden und ausrichten':'Load from this site and align','Schematic aus dem Ordner laden und ausrichten':'Load a schematic from the folder and align','Neu ausrichten':'Re-align','Verschieben':'Move','Drehen':'Rotate','Ebene wählen':'Choose layer','Nur eine Blockart':'Only one block type','Was fehlt noch?':'What is still missing?','Aus und an':'Off and on',
+'↓ Blueprint-Mod herunterladen':'↓ Download Blueprint mod','blueprint-1.0.0.jar · für Minecraft 26.2 mit Fabric':'blueprint-1.0.0.jar · for Minecraft 26.2 with Fabric','Installieren':'Install','Du brauchst Minecraft':'You need Minecraft','mit':'with','und die':'and the',
+'Lege die heruntergeladene':'Put the downloaded','in den Ordner':'in the folder','deines Profils (bei Lunar: das Profil öffnen).':'of your profile (in Lunar: open the profile).','Lege deine Schematics in den Ordner':'Put your schematics in the folder','desselben Profils.':'of the same profile.',
+'. Der Name muss nur der Anfang des Dateinamens sein.':'. The name only has to be the beginning of the file name.','Zum Laden des Schematics in Litematica selbst brauchst du die Blueprint-Mod nicht. Die Dateien von dieser Seite funktionieren auch mit der offiziellen Litematica.':'You do not need the Blueprint mod to load the schematic in Litematica itself. Files from this site also work with the official Litematica.',
+// Meldungen / Toasts
+'Ausgeloggt':'Logged out','Kopiert!':'Copied!','Link kopiert':'Link copied','Befehl kopiert':'Command copied','Materialliste kopiert':'Materials list copied','Kopieren nicht möglich':'Copying not possible','Gelöscht':'Deleted','Gespeichert':'Saved','Titelbild gesetzt':'Cover image set','Titelbild entfernt':'Cover image removed',
+'Hinzugefügt':'Added','Entfernt':'Removed','Sammlung angelegt':'Collection created','Danke, die Meldung wurde gesendet.':'Thanks, the report was sent.','Profilbild gespeichert':'Profile picture saved','Profilbild entfernt':'Profile picture removed','Passwort geändert':'Password changed','Konto gelöscht':'Account deleted','Erledigt':'Done',
+'Der Server ist nicht erreichbar. Läuft das Fenster von Start.command noch? Sonst nochmal starten und diese Seite neu laden.':'The server is not reachable. Start SchematicHub.command again and reload this page.',
+// Server-Meldungen
+'1 bis 5 Sterne.':'1 to 5 stars.','Bitte ein JPEG-Bild (bis 400 KB).':'Please use a JPEG image (up to 400 KB).','Bitte ein JPEG-Bild (bis 700 KB).':'Please use a JPEG image (up to 700 KB).','Bitte einen Grund angeben.':'Please give a reason.','Bitte einen Namen angeben.':'Please enter a name.','Bitte einloggen.':'Please log in.',
+'Das Passwort ist falsch.':'The password is wrong.','Das alte Passwort ist falsch.':'The old password is wrong.','Das geht nicht.':'That is not possible.','Das ist kein unterstuetztes .schem (Sponge v2/v3). Alte .schematic-Dateien gehen nicht.':'This is not a supported .schem (Sponge v2/v3). Old .schematic files do not work.',
+'Das ist keine gueltige .litematic-Datei.':'This is not a valid .litematic file.','Das ist keine gueltige .nbt-Struktur-Datei.':'This is not a valid .nbt structure file.','Das ist nicht dein Schematic.':'This is not your schematic.','Datei fehlt.':'File missing.','Datei zu gross (maximal 25 MB).':'File too large (25 MB maximum).',
+'Den eigenen Bau kannst du nicht bewerten.':'You cannot rate your own build.','Der Kommentar ist leer.':'The comment is empty.','Der Name ist schon vergeben.':'That name is already taken.','Die Datei enthaelt keine Regionen.':'The file contains no regions.','Die Datei ist beschaedigt.':'The file is damaged.',
+'Die Datei konnte nicht umgewandelt werden.':'The file could not be converted.','Die Groesse des Schematics ist ungueltig oder zu gross.':'The schematic size is invalid or too large.','Die Palette ist leer.':'The palette is empty.','Diese Datei konnte nicht gelesen werden.':'This file could not be read.',
+'Ebene nicht gefunden.':'Layer not found.','Kein Bild.':'No image.','Keine Vorschau.':'No preview.','Maximal 200 Schematics pro Konto.':'Maximum of 200 schematics per account.','Maximal 50 Sammlungen.':'Maximum of 50 collections.','Name oder Passwort falsch.':'Wrong name or password.',
+'Name: 3-20 Zeichen, nur Buchstaben, Zahlen und _.':'Name: 3-20 characters, only letters, digits and _.','Neues Passwort: mindestens 8 Zeichen.':'New password: at least 8 characters.','Nicht gefunden.':'Not found.','Nur fuer Admins.':'Admins only.','Nutzer nicht gefunden.':'User not found.',
+'Passwort: mindestens 8 Zeichen.':'Password: at least 8 characters.','Sammlung nicht gefunden.':'Collection not found.','Schematic nicht gefunden.':'Schematic not found.','Unbekannt.':'Unknown.','Ungueltige Anfrage.':'Invalid request.','Ungueltige Eingabe.':'Invalid input.',
+'Zu viele Kommentare, bitte warte kurz.':'Too many comments, please wait a moment.','Zu viele Meldungen, bitte warte.':'Too many reports, please wait.','Zu viele Versuche, bitte warte kurz.':'Too many attempts, please wait a moment.','zu gross':'too large',
+'gerade eben':'just now'
+});
+const _agoEn = s => { const m = s.match(/^vor (\d+) (Min|Std|Tagen)$/); if (m) return m[1]+' '+({Min:'min',Std:'h',Tagen:'days'}[m[2]])+' ago'; return trText(s) ?? s; };
+PATS.push(
+ [/^(\d+) von (\d+) Materialien gesammelt$/, m=>`${m[1]} of ${m[2]} materials collected`],
+ [/^(\d+) von (\d+) Ebenen fertig \((\d+) %\)$/, m=>`${m[1]} of ${m[2]} layers done (${m[3]} %)`],
+ [/^Alle (\d+) Ebenen$/, m=>`All ${m[1]} layers`],
+ [/^Ebenen (\d+)[–-](\d+) von (\d+)$/, m=>`Layers ${m[1]}–${m[2]} of ${m[3]}`],
+ [/^Ebene (\d+) von (\d+)$/, m=>`Layer ${m[1]} of ${m[2]}`],
+ [/^Ebene (\d+) \(von unten\)$/, m=>`Layer ${m[1]} (from the bottom)`],
+ [/^Ebene (\d+)$/, m=>`Layer ${m[1]}`],
+ [/^Ebene (\d+) · ([\d.,]+) × (.+)$/, m=>`Layer ${m[1]} · ${m[2]} × ${m[3]}`],
+ [/^Schritt (\d+) von (\d+):$/, m=>`Step ${m[1]} of ${m[2]}:`],
+ [/^Anleitung wird vorbereitet … Ebene (\d+)\/(\d+)$/, m=>`Preparing guide … layer ${m[1]}/${m[2]}`],
+ [/^([\d.,]+) Blöcke$/, m=>`${m[1]} blocks`],
+ [/^([\d.,]+) Blöcke insgesamt$/, m=>`${m[1]} blocks in total`],
+ [/^(\d+) Schematics$/, m=>`${m[1]} schematics`],
+ [/^· (\d+) Schematics$/, m=>`· ${m[1]} schematics`],
+ [/^(\d+) Schematics · ([\d.,]+) Downloads$/, m=>`${m[1]} schematics · ${m[2]} downloads`],
+ [/^Dabei seit (.+)$/, m=>`Member since ${m[1]}`],
+ [/^(.+) \((\d+) Bewertungen?\)( · deine: (\d)★)?$/, m=>`${m[1]} (${m[2]} rating${m[2]==='1'?'':'s'})${m[4]?' · yours: '+m[4]+'★':''}`],
+ [/^Kommentare \((\d+)\)$/, m=>`Comments (${m[1]})`],
+ [/^vor (\d+) (Min|Std|Tagen)$/, m=>_agoEn(m[0])],
+ [/^von (.+) · gemeldet von (.+) · (.+)$/, m=>`by ${m[1]} · reported by ${m[2]} · ${_agoEn(m[3])}`],
+ [/^von (.+)$/, m=>`by ${m[1]}`],
+ [/^Willkommen, (.+)!$/, m=>`Welcome, ${m[1]}!`],
+ [/^Mit (.+)$/, m=>`With ${m[1]}`],
+ [/^Schematic: (.+)$/, m=>`Schematic: ${m[1]}`],
+ [/^Kommentar: (.+)$/, m=>`Comment: ${m[1]}`],
+ [/^(.+) · Schematic Hub$/, m=>`${trText(m[1]) ?? m[1]} · Schematic Hub`],
+ [/^(\d+) von (\d+)$/, m=>`${m[1]} of ${m[2]}`],
+ [/^Gespeichert als (.+)$/, m=>`Saved as ${m[1]}`],
+ [/^Wird hochgeladen (\d+)\/(\d+) …$/, m=>`Uploading ${m[1]}/${m[2]} …`],
+ [/^(\d+) Dateien gewählt$/, m=>`${m[1]} files chosen`],
+ [/^(\d+) Schematics hochgeladen!$/, m=>`${m[1]} schematics uploaded!`],
+ [/^(.+) hat Schematic (\d+) .+$/, m=>m[0]],
+ // Benachrichtigungen vom Server
+ [/^(.+) folgt dir jetzt$/, m=>`${m[1]} is now following you`],
+ [/^(.+) gefaellt dein Bau "(.+)"$/, m=>`${m[1]} likes your build "${m[2]}"`],
+ [/^(.+) hat "(.+)" kommentiert$/, m=>`${m[1]} commented on "${m[2]}"`],
+ [/^(.+) hat "(.+)" hochgeladen$/, m=>`${m[1]} uploaded "${m[2]}"`],
+ [/^Neue Meldung von (.+)$/, m=>`New report from ${m[1]}`],
+ [/^Diese Datei hast du schon hochgeladen \("(.+)"\)\.$/, m=>`You already uploaded this file ("${m[1]}").`],
+);
+
+// ---------------------------------------------------------------- Theme
+function setTheme(t){ document.documentElement.dataset.theme=t; $('#theme').textContent = t==='dark' ? '☀' : '☾'; try{localStorage.setItem('hub.theme',t);}catch(e){} }
+(function(){ let t=null; try{t=localStorage.getItem('hub.theme');}catch(e){} if(!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; setTheme(t); })();
+$('#theme').onclick = () => setTheme(document.documentElement.dataset.theme==='dark' ? 'light' : 'dark');
+
+// ---------------------------------------------------------------- Konto
+function renderAuth(){
+  const a = $('#auth'); const menu = $('#menu'); menu.classList.remove('on');
+  if (me) {
+    a.innerHTML = '<button class="userbtn" id="ub">'+avatar(me.name,'',me.av)+'<span>'+esc(me.name)+'</span></button>';
+    menu.innerHTML = '<a href="#/u/'+esc(me.name)+'">Mein Profil</a><a href="#/mine">Meine Schematics</a><a href="#/favs">Favoriten</a>'+(me.admin?'<a href="#/admin">Admin: Meldungen</a>':'')+'<hr><button id="m-set">Einstellungen</button><button id="m-out">Ausloggen</button>';
+    $('#ub').onclick = e => { e.stopPropagation(); menu.classList.toggle('on'); };
+    $('#m-out').onclick = async()=>{ await post('/api/logout'); me=null; renderAuth(); location.hash='#/'; route(); toast('Ausgeloggt'); };
+    $('#m-set').onclick = openSettings;
+    refreshBell();
+    menu.onclick = e => { if (e.target.closest('a,button')) menu.classList.remove('on'); };
+  } else {
+    $('#bell').style.display='none';
+    a.innerHTML = '<button class="btn pri" id="btn-login">Einloggen</button>';
+    $('#btn-login').onclick = ()=>openAuth('login');
+  }
+}
+document.addEventListener('click', e => { if(!e.target.closest('#menu')) $('#menu').classList.remove('on'); });
+let authMode='login';
+function openAuth(mode){ setMode(mode); $('#a-err').textContent=''; $('#modal').classList.add('on'); setTimeout(()=>$('#a-name').focus(),50); }
+function setMode(m){ authMode=m; $('#a-invite-row').style.display = (m==='register' && SITE.invite) ? '' : 'none'; $('#tab-login').classList.toggle('pri',m==='login'); $('#tab-reg').classList.toggle('pri',m==='register');
+  $('#a-submit').textContent = m==='login' ? 'Einloggen' : 'Konto erstellen';
+  $('#a-pass').autocomplete = m==='login' ? 'current-password' : 'new-password'; }
+$('#tab-login').onclick=()=>setMode('login'); $('#tab-reg').onclick=()=>setMode('register');
+$('#a-cancel').onclick=()=>$('#modal').classList.remove('on');
+$('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') $('#modal').classList.remove('on'); });
+$('#authform').onsubmit = async e => {
+  e.preventDefault(); $('#a-err').textContent='';
+  try {
+    const d = await post('/api/'+(authMode==='login'?'login':'register'), {name:$('#a-name').value, password:$('#a-pass').value, invite:$('#a-invite').value});
+    me = d.user; $('#a-pass').value=''; $('#modal').classList.remove('on'); renderAuth(); route(); toast('Willkommen, '+me.name+'!');
+  } catch(err){ $('#a-err').textContent = err.message; }
+};
+function openSettings(){
+  const box = $('#box2');
+  box.innerHTML = '<h3 style="margin-top:0">Einstellungen</h3><div class="row" style="margin-bottom:18px;gap:14px">'+avatar(me.name,'lg',me.av)+'<div><b>Profilbild</b><div class="row" style="margin-top:6px"><label class="btn sm" style="cursor:pointer;display:inline-block">Bild w&auml;hlen<input type="file" id="av-file" accept="image/*" hidden></label>'+(me.av?'<button class="btn sm dng" id="av-del">Entfernen</button>':'')+'</div></div></div><form id="pwform"><b>Passwort &auml;ndern</b>'
+    +'<label style="margin-top:8px">Altes Passwort<input type="password" id="pw-old" autocomplete="current-password" required></label>'
+    +'<label style="margin-top:8px">Neues Passwort (mind. 8 Zeichen)<input type="password" id="pw-new" autocomplete="new-password" minlength="8" required></label>'
+    +'<div class="err" id="pw-err"></div><button class="btn pri" type="submit">Passwort speichern</button></form>'
+    +'<hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><form id="delform"><b style="color:var(--danger)">Konto l&ouml;schen</b>'
+    +'<p class="mute" style="margin:6px 0">Alle deine Schematics, Kommentare und Likes werden unwiderruflich gel&ouml;scht.</p>'
+    +'<label>Passwort zur Best&auml;tigung<input type="password" id="del-pw" autocomplete="current-password" required></label>'
+    +'<div class="err" id="del-err"></div><button class="btn dng" type="submit">Konto endg&uuml;ltig l&ouml;schen</button></form>'
+    +'<div class="row" style="margin-top:18px"><button class="btn" id="set-close">Schlie&szlig;en</button></div>';
+  $('#modal2').classList.add('on');
+  $('#set-close').onclick = ()=>$('#modal2').classList.remove('on');
+  $('#av-file').onchange = async e=>{ const f=e.target.files[0]; if(!f) return; try{ const r=await putRaw('/api/account/avatar', await imageToJpeg(f, 256, 256, 0.88)); me.av=r.av; renderAuth(); toast('Profilbild gespeichert'); openSettings(); }catch(err){ toast(err.message); } };
+  const ad=$('#av-del'); if(ad) ad.onclick = async()=>{ await api('/api/account/avatar',{method:'DELETE'}); me.av=0; renderAuth(); toast('Profilbild entfernt'); openSettings(); };
+  $('#pwform').onsubmit = async e=>{ e.preventDefault(); try{ await post('/api/account/password',{old:$('#pw-old').value,new:$('#pw-new').value}); toast('Passwort geändert'); $('#modal2').classList.remove('on'); }catch(err){ $('#pw-err').textContent=err.message; } };
+  $('#delform').onsubmit = async e=>{ e.preventDefault(); if(!confirm('Wirklich dein ganzes Konto löschen?')) return; try{ await post('/api/account/delete',{password:$('#del-pw').value}); me=null; $('#modal2').classList.remove('on'); renderAuth(); location.hash='#/'; route(); toast('Konto gelöscht'); }catch(err){ $('#del-err').textContent=err.message; } };
+}
+$('#modal2').addEventListener('click',e=>{ if(e.target.id==='modal2') $('#modal2').classList.remove('on'); });
+
+// ---------------------------------------------------------------- 3D (echte Minecraft-Bloecke)
+const TINTS = {grass:'#91bd59', foliage:'#77ab2f', birch:'#80a755', spruce:'#619961', water:'#3f76e4', redstone:'#d02010', lily:'#208030', stem:'#7ec23c'};
+const imgCache = new Map();
+function loadImg(path){
+  if (!imgCache.has(path)) imgCache.set(path, new Promise(res=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=()=>res(null); i.src='/tex/'+path+'.png'; }));
+  return imgCache.get(path);
+}
+// Eine Kachel (16x16) aus "block/name" oder "block/name@tint"
+async function tileCanvas(spec){
+  const [path0, tint] = spec.split('@'); const [path, crop] = path0.split('#');
+  const img = await loadImg(path);
+  const c = document.createElement('canvas'); c.width = c.height = 16;
+  const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
+  if (!img){ x.fillStyle='#b0b'; x.fillRect(0,0,16,16); x.fillStyle='#222'; x.fillRect(0,0,8,8); x.fillRect(8,8,8,8); return c; }
+  let cx=0, cy=0, cw=img.width, ch=img.width;   // animierte Texturen: erstes Bild oben
+  if (crop) { [cx,cy,cw,ch] = crop.split(',').map(Number); }
+  x.drawImage(img, cx, cy, cw, ch, 0, 0, 16, 16);
+  if (tint && TINTS[tint]){
+    x.globalCompositeOperation = 'multiply'; x.fillStyle = TINTS[tint]; x.fillRect(0,0,16,16);
+    x.globalCompositeOperation = 'destination-in'; x.drawImage(img, cx, cy, cw, ch, 0, 0, 16, 16);
+  }
+  return c;
+}
+const atlasCache = new WeakMap();
+async function buildAtlas(data){
+  if (atlasCache.has(data)) return atlasCache.get(data);
+  const n = data.tex.length + 1, cols = 16, rows = Math.ceil(n / cols);
+  const c = document.createElement('canvas'); c.width = cols*16; c.height = rows*16;
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0,0,16,16);   // Kachel 0 = weiss (Farbwuerfel)
+  const tiles = await Promise.all(data.tex.map(tileCanvas));
+  tiles.forEach((t,i)=>{ const k=i+1; x.drawImage(t, (k%cols)*16, Math.floor(k/cols)*16); });
+  const tex = new THREE.CanvasTexture(c); tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
+  const out = {tex, W:c.width, H:c.height, cols};
+  atlasCache.set(data, out); return out;
+}
+const DIRS = {up:[0,1,0], down:[0,-1,0], north:[0,0,-1], south:[0,0,1], west:[-1,0,0], east:[1,0,0]};
+// Ecke (a,b) einer Flaeche: a = u-Richtung, b = v-Richtung (wie bei Minecraft)
+function faceCorner(d, f, t, a, b){
+  switch(d){
+    case 'up':    return [a?t[0]:f[0], t[1], b?t[2]:f[2]];
+    case 'down':  return [a?t[0]:f[0], f[1], b?f[2]:t[2]];
+    case 'north': return [a?f[0]:t[0], b?f[1]:t[1], f[2]];
+    case 'south': return [a?t[0]:f[0], b?f[1]:t[1], t[2]];
+    case 'west':  return [f[0], b?f[1]:t[1], a?t[2]:f[2]];
+    default:      return [t[0], b?f[1]:t[1], a?f[2]:t[2]];
+  }
+}
+function defaultUV(d, f, t){
+  switch(d){
+    case 'up': return [f[0], f[2], t[0], t[2]];
+    case 'down': return [f[0], 16-t[2], t[0], 16-f[2]];
+    case 'north': return [16-t[0], 16-t[1], 16-f[0], 16-f[1]];
+    case 'south': return [f[0], 16-t[1], t[0], 16-f[1]];
+    case 'west': return [f[2], 16-t[1], t[2], 16-f[1]];
+    default: return [16-t[2], 16-t[1], 16-f[2], 16-f[1]];
+  }
+}
+function rotAxis(p, axis, deg){   // Standard-Drehung um eine Achse durch den Ursprung
+  const r = deg*Math.PI/180, c = Math.cos(r), s = Math.sin(r); let [x,y,z] = p;
+  if (axis==='x') return [x, y*c - z*s, y*s + z*c];
+  if (axis==='y') return [x*c + z*s, y, -x*s + z*c];
+  return [x*c - y*s, x*s + y*c, z];
+}
+function modelRot(p, mx, my){      // Minecraft: erst x, dann y; positive Winkel = Standard-Drehung um -Winkel
+  let q = [p[0]-8, p[1]-8, p[2]-8];
+  if (mx) q = rotAxis(q, 'x', -mx);
+  if (my) q = rotAxis(q, 'y', -my);
+  return [q[0]+8, q[1]+8, q[2]+8];
+}
+function rotDir(v, mx, my){
+  let q = v.slice(); if (mx) q = rotAxis(q,'x',-mx); if (my) q = rotAxis(q,'y',-my);
+  return q.map(Math.round);
+}
+async function buildScene(data){
+  const scene = new THREE.Scene();
+  const [sx,sy,sz] = data.size;
+  const atlas = (data.textured && data.tex) ? await buildAtlas(data) : await buildAtlas({tex:[]});
+  const key = (x,y,z) => (x*sy + y)*sz + z;
+  const vox = new Map(); const n = data.v.length/4;
+  for (let i=0;i<n;i++) vox.set(key(data.v[4*i], data.v[4*i+1], data.v[4*i+2]), data.v[4*i+3]);
+  const pal = data.palette;
+  const op = {pos:[], uv:[], col:[]}, tr = {pos:[], uv:[], col:[]};
+  const W = atlas.W, H = atlas.H, cols = atlas.cols;
+  function quad(target, P, UV, tile, shade){
+    const k = tile, ox = (k%cols)*16, oy = Math.floor(k/cols)*16;
+    const order = [0,1,2,0,2,3];
+    for (const i of order){
+      target.pos.push(P[i][0], P[i][1], P[i][2]);
+      const u = (ox + UV[i][0]*16 + 0.02 + UV[i][0]*-0.04*16/16*0) / W;   // kleiner Rand gegen Bluten
+      const cu = Math.min(Math.max(UV[i][0],0.001),0.999), cv = Math.min(Math.max(UV[i][1],0.001),0.999);
+      target.uv.push((ox + cu*16)/W, 1 - (oy + cv*16)/H);
+      target.col.push(shade, shade, shade);
+    }
+  }
+  for (let i=0;i<n;i++){
+    const x=data.v[4*i], y=data.v[4*i+1], z=data.v[4*i+2], st = pal[data.v[4*i+3]];
+    const target = st.tr ? tr : op;
+    if (!st.m){   // Farbwuerfel (keine Texturen verfuegbar, auch fuer alte Vorschauen)
+      const colr = new THREE.Color('#'+(st.c || st.color || '999999'));
+      for (const d of Object.keys(DIRS)){
+        const nb = DIRS[d], g = vox.get(key(x+nb[0], y+nb[1], z+nb[2]));
+        if (g !== undefined && pal[g].o) continue;
+        const P=[], UV=[[0,0],[1,0],[1,1],[0,1]];
+        for (let q=0;q<4;q++){ const c = faceCorner(d,[0,0,0],[16,16,16],q===1||q===2?1:0,q>=2?1:0); P.push([x+c[0]/16, y+c[1]/16, z+c[2]/16]); }
+        const sh = d==='up'?1:d==='down'?0.5:(d==='east'||d==='west')?0.6:0.8;
+        const base = target.col.length;
+        quad(target, P, UV, 0, 1);
+        for (let q=0;q<6;q++){ target.col[base+q*3]=colr.r*sh; target.col[base+q*3+1]=colr.g*sh; target.col[base+q*3+2]=colr.b*sh; }
+      }
+      continue;
+    }
+    for (const model of st.m){
+      for (const e of model.e){
+        for (const d of Object.keys(e.fc)){
+          const f = e.fc[d];
+          if (f.c){
+            const v = rotDir(DIRS[f.c], model.x, model.y);
+            const g = vox.get(key(x+v[0], y+v[1], z+v[2]));
+            if (g !== undefined && pal[g].o) continue;
+          }
+          const uv = f.uv || defaultUV(d, e.f, e.t);
+          const rot = ((f.r||0)/90)|0;
+          const P = [], UV = [];
+          const cs = [[0,0],[1,0],[1,1],[0,1]];
+          for (let q=0;q<4;q++){
+            let c = faceCorner(d, e.f, e.t, cs[q][0], cs[q][1]);
+            if (e.r){
+              const o = e.r.o; let p = [c[0]-o[0], c[1]-o[1], c[2]-o[2]];
+              p = rotAxis(p, e.r.a, e.r.g);
+              if (e.r.s){ const sc = 1/Math.cos(Math.abs(e.r.g)*Math.PI/180); if (e.r.a!=='x') p[0]*=sc; if (e.r.a!=='y') p[1]*=sc; if (e.r.a!=='z') p[2]*=sc; if (e.r.a==='x') {p[1]*=1;} }
+              c = [p[0]+o[0], p[1]+o[1], p[2]+o[2]];
+            }
+            if (e.o){ const nv = DIRS[d]; c = [c[0]+nv[0]*0.02, c[1]+nv[1]*0.02, c[2]+nv[2]*0.02]; }
+            c = modelRot(c, model.x, model.y);
+            P.push([x + c[0]/16, y + c[1]/16, z + c[2]/16]);
+            const k = (q + rot) % 4, a = cs[k][0], b = cs[k][1];
+            UV.push([(a?uv[2]:uv[0])/16, (b?uv[3]:uv[1])/16]);
+          }
+          let shade = 1;
+          if (e.sh !== 0){
+            const u1=[P[1][0]-P[0][0],P[1][1]-P[0][1],P[1][2]-P[0][2]], u2=[P[3][0]-P[0][0],P[3][1]-P[0][1],P[3][2]-P[0][2]];
+            let nx=u1[1]*u2[2]-u1[2]*u2[1], ny=u1[2]*u2[0]-u1[0]*u2[2], nz=u1[0]*u2[1]-u1[1]*u2[0];
+            const l=Math.hypot(nx,ny,nz)||1; nx/=l; ny/=l; nz/=l;
+            shade = Math.abs(ny)>0.6 ? (ny>0 ? 1 : 0.5) : (Math.abs(nx)>Math.abs(nz) ? 0.6 : 0.8);
+          }
+          quad(target, P, UV, f.t + 1, shade);
+        }
+      }
+    }
+  }
+  function mesh(t, transparent){
+    if (!t.pos.length) return null;
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(t.pos,3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(t.uv,2));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(t.col,3));
+    const m = new THREE.MeshBasicMaterial({map:atlas.tex, vertexColors:true, side:THREE.DoubleSide, alphaTest: transparent?0.02:0.12, transparent, depthWrite:!transparent});
+    const me = new THREE.Mesh(g, m); if (transparent) me.renderOrder = 2; return me;
+  }
+  const mo = mesh(op,false), mt = mesh(tr,true);
+  if (mo) scene.add(mo); if (mt) scene.add(mt);
+  const grid = new THREE.GridHelper(Math.max(sx,sz)+8, Math.max(sx,sz)+8, 0x3a4a66, 0x232d40);
+  grid.position.set(sx/2, -0.01, sz/2); scene.add(grid);
+  return {scene, grid, center:new THREE.Vector3(sx/2, sy/2, sz/2), radius:Math.hypot(sx,sy,sz)/2};
+}
+function makeViewer(host, data, opts={}){
+  const canvas = document.createElement('canvas'); host.appendChild(canvas);
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true, preserveDrawingBuffer:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  const cam = new THREE.PerspectiveCamera(40, 1, 0.1, 2000);
+  const pMax = new THREE.Plane(new THREE.Vector3(0,-1,0), 1e6), pMin = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
+  let scene=null, grid=null, center=new THREE.Vector3(), radius=10, theta=0.8, phi=1.05, dist=30, auto=opts.auto!==false, drag=null, alive=true, ready;
+  const sy = data.size[1];
+  function place(){ cam.position.set(center.x+dist*Math.sin(phi)*Math.cos(theta), center.y+dist*Math.cos(phi), center.z+dist*Math.sin(phi)*Math.sin(theta)); cam.lookAt(center); }
+  function size(){ const w=host.clientWidth||300, h=host.clientHeight||225; renderer.setSize(w,h,false); cam.aspect=w/h; cam.updateProjectionMatrix(); }
+  canvas.addEventListener('pointerdown',e=>{ drag={x:e.clientX,y:e.clientY}; auto=false; canvas.setPointerCapture(e.pointerId); canvas.style.cursor='grabbing'; });
+  canvas.addEventListener('pointermove',e=>{ if(!drag) return; theta -= (e.clientX-drag.x)*0.008; phi = Math.min(Math.PI-0.1, Math.max(0.1, phi - (e.clientY-drag.y)*0.008)); drag={x:e.clientX,y:e.clientY}; });
+  canvas.addEventListener('pointerup',()=>{ drag=null; canvas.style.cursor='grab'; });
+  canvas.addEventListener('wheel',e=>{ e.preventDefault(); auto=false; dist=Math.min(radius*8+30, Math.max(4, dist*(1+e.deltaY*0.001))); },{passive:false});
+  const ro = new ResizeObserver(size); ro.observe(host); size();
+  ready = buildScene(data).then(r=>{ if(!alive) return; scene=r.scene; grid=r.grid; center=r.center; radius=r.radius; dist=radius*2.2+4; });
+  (function loop(){ if(!alive) return; if(scene){ if(auto) theta+=0.004; place(); renderer.render(scene,cam); } requestAnimationFrame(loop); })();
+  return {
+    ready,
+    setClip(lo, hi){ if (lo<=0 && hi>=sy) renderer.clippingPlanes=[]; else { pMax.constant=hi; pMin.constant=-lo; renderer.clippingPlanes=[pMax,pMin]; } },
+    toggleAuto(){ auto=!auto; return auto; },
+    toggleGrid(){ if(!grid) return true; grid.visible=!grid.visible; return grid.visible; },
+    reset(){ theta=0.8; phi=1.05; dist=radius*2.2+4; auto=true; },
+    shot(){ const c=document.createElement('canvas'); c.width=canvas.width; c.height=canvas.height; const x=c.getContext('2d');
+      const g=x.createLinearGradient(0,0,0,c.height); g.addColorStop(0,'#1a2740'); g.addColorStop(1,'#0e131c'); x.fillStyle=g; x.fillRect(0,0,c.width,c.height); x.drawImage(canvas,0,0); return c.toDataURL('image/png'); },
+    full(){ if (host.requestFullscreen) host.requestFullscreen(); },
+    dispose(){ alive=false; ro.disconnect(); renderer.dispose(); canvas.remove(); }
+  };
+}
+// Vorschaubilder fuer die Karten: ein gemeinsamer Renderer, nacheinander
+let thumbRenderer=null; const thumbCache=new Map(); let thumbChain=Promise.resolve();
+function thumbFor(id){
+  if (thumbCache.has(id)) return thumbCache.get(id);
+  const p = thumbChain.then(async()=>{
+    const data = await (await fetch('/api/schematics/'+id+'/preview')).json();
+    if (!thumbRenderer){ const c=document.createElement('canvas'); c.width=480; c.height=360; thumbRenderer=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true,preserveDrawingBuffer:true}); thumbRenderer.setSize(480,360,false); }
+    const {scene,center,radius}=await buildScene(data);
+    const cam=new THREE.PerspectiveCamera(40,480/360,0.1,2000); const d=radius*2.2+4;
+    cam.position.set(center.x+d*0.62, center.y+d*0.5, center.z+d*0.78); cam.lookAt(center);
+    thumbRenderer.render(scene,cam);
+    const url = thumbRenderer.domElement.toDataURL('image/png');
+    scene.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); });
+    return url;
+  }).catch(()=>null);
+  thumbChain = p.then(()=>{}, ()=>{});
+  thumbCache.set(id,p); return p;
+}
+
+// ---------------------------------------------------------------- Bau-Fortschritt (lokal im Browser gespeichert)
+function layersDone(id){ try { return new Set(JSON.parse(localStorage.getItem('hub.layers.'+id)||'[]')); } catch(e){ return new Set(); } }
+function saveLayers(id, set){ try { localStorage.setItem('hub.layers.'+id, JSON.stringify([...set])); } catch(e){} }
+function progressPct(s){ const n = s.dims[1]; if (!n) return 0; return Math.round(100*[...layersDone(s.id)].filter(y=>y<n).length/n); }
+
+// ---------------------------------------------------------------- Hilfen fuer Texturen und Ebenen-Plan
+const tileCache = new Map();
+const tileP = spec => { if (!tileCache.has(spec)) tileCache.set(spec, tileCanvas(spec)); return tileCache.get(spec); };
+function topSpec(data, idx){
+  const st = data.palette[idx]; if (!st || !st.m) return null;
+  let best = null, area = -1;
+  for (const m of st.m) for (const e of m.e) for (const d of Object.keys(e.fc)) {
+    const v = rotDir(DIRS[d], m.x, m.y);
+    if (v[1] !== 1) continue;                       // Flaeche, die nach der Drehung nach oben zeigt
+    const a = (e.t[0]-e.f[0]) * (e.t[2]-e.f[2]);
+    if (a > area) { area = a; best = e.fc[d].t; }
+  }
+  if (best === null) { const f = Object.values(st.m[0].e[0].fc)[0]; best = f.t; }
+  return data.tex[best];
+}
+function fillIcon(canvas, data, name){
+  const si = data.icons && data.icons[name];
+  if (si === undefined) return false;
+  tileP(data.tex[si]).then(t => { canvas.getContext('2d').drawImage(t, 0, 0); });
+  return true;
+}
+
+async function renderPlan(box, id, s, data){
+  const sy = s.dims[1];
+  const done = layersDone(id);
+  box.innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:6px"><b>Bau-Fortschritt</b><span class="mute" id="pg-txt"></span></div><div class="progress"><i id="pg-bar"></i></div><div class="chips2" id="pg-chips"></div>
+    <div class="row2" style="margin-top:12px"><b>Ebene</b><button class="btn sm" id="pl-prev">&larr;</button><input type="range" id="pl-range" min="1" max="${sy}" value="1"><button class="btn sm" id="pl-next">&rarr;</button><span id="pl-lbl" class="mute"></span>
+      <label class="row" style="grid-auto-flow:column;gap:6px;font-size:13px;font-weight:600"><input type="checkbox" id="pl-done"> Ebene fertig</label><button class="btn sm" id="pl-png">Als Bild</button><button class="btn sm" id="pl-print">Alle Ebenen drucken</button><button class="btn sm pri" id="pl-tut">Schritt-f&uuml;r-Schritt-Anleitung</button></div>
+    <div id="tutbox" style="display:none" class="tutbox"></div>
+    <div class="planwrap"><canvas id="pl-canvas"></canvas></div><div class="legend" id="pl-legend"></div>
+    <p class="mute" style="font-size:13px;margin:12px 0 0">Ansicht von oben, Norden ist oben. Mit der Maus &uuml;ber einen Block fahren zeigt seinen Namen. Ebene 1 ist die unterste.</p>`;
+  const cache = new Map();
+  let cur = 0, token = 0, hl = null;
+  const layer = y => { if (!cache.has(y)) cache.set(y, api('/api/schematics/'+id+'/layer/'+y)); return cache.get(y); };
+  function refreshProgress(){
+    const k = [...done].filter(y=>y<sy).length;
+    $('#pg-txt').textContent = k+' von '+sy+' Ebenen fertig ('+Math.round(100*k/sy)+' %)';
+    $('#pg-bar').style.width = Math.round(100*k/sy)+'%';
+    $('#pg-chips').innerHTML = Array.from({length:sy},(_,y)=>`<button class="lc${done.has(y)?' d':''}${y===cur?' c':''}" data-y="${y}" title="Ebene ${y+1}">${y+1}</button>`).join('');
+    const cb = $('#pl-done'); if (cb) cb.checked = done.has(cur);
+  }
+  box.addEventListener('click', e=>{ const b=e.target.closest('.lc'); if (b) { hl=null; show(+b.dataset.y); } });
+  box.addEventListener('change', e=>{ if (e.target.id!=='pl-done') return; e.target.checked ? done.add(cur) : done.delete(cur); saveLayers(id, done); refreshProgress(); });
+
+  // Zeichnet eine Ebene auf ein Canvas; hlName hebt eine Blockart hervor
+  async function paint(cv, L, cs, hlName){
+    const w=L.w, d=L.d, m=26;
+    cv.width = m + w*cs; cv.height = m + d*cs;
+    const x = cv.getContext('2d'); x.imageSmoothingEnabled = false;
+    const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n);
+    x.fillStyle = cssv('--bg2'); x.fillRect(0,0,cv.width,cv.height);
+    const counts = {}, specs = new Map();
+    for (let i=0;i<L.c.length;i++){ const g=L.c[i]; if (g===65535) continue; if(!specs.has(g)) specs.set(g, topSpec(data,g)); const n=(data.palette[g]||{}).n||'?'; counts[n]=(counts[n]||0)+1; }
+    const tiles = new Map();
+    await Promise.all([...specs.entries()].map(async([g,sp])=>{ if (sp) tiles.set(g, await tileP(sp)); }));
+    for (let zz=0; zz<d; zz++) for (let xx=0; xx<w; xx++){
+      const g = L.c[zz*w+xx]; const px = m+xx*cs, py = m+zz*cs;
+      if (g===65535) { x.fillStyle = ((xx+zz)&1) ? 'rgba(128,140,160,.10)' : 'rgba(128,140,160,.05)'; x.fillRect(px,py,cs,cs); continue; }
+      const t = tiles.get(g);
+      if (t) x.drawImage(t, px, py, cs, cs); else { x.fillStyle = '#'+((data.palette[g]||{}).c||'888888'); x.fillRect(px,py,cs,cs); }
+      if (hlName) { const isHl = (data.palette[g]||{}).n === hlName; if (!isHl) { x.fillStyle='rgba(8,12,20,.62)'; x.fillRect(px,py,cs,cs); } }
+    }
+    x.strokeStyle = 'rgba(0,0,0,.28)'; x.lineWidth = 1; x.beginPath();
+    for (let i=0;i<=w;i++){ x.moveTo(m+i*cs+.5, m); x.lineTo(m+i*cs+.5, m+d*cs); }
+    for (let i=0;i<=d;i++){ x.moveTo(m, m+i*cs+.5); x.lineTo(m+w*cs, m+i*cs+.5); }
+    x.stroke();
+    x.strokeStyle = 'rgba(255,255,255,.55)'; x.beginPath();
+    for (let i=0;i<=w;i+=5){ x.moveTo(m+i*cs+.5, m); x.lineTo(m+i*cs+.5, m+d*cs); }
+    for (let i=0;i<=d;i+=5){ x.moveTo(m, m+i*cs+.5); x.lineTo(m+w*cs, m+i*cs+.5); }
+    x.stroke();
+    if (hlName) { x.strokeStyle='#ffd400'; x.lineWidth=2; for (let zz=0; zz<d; zz++) for (let xx=0; xx<w; xx++){ const g=L.c[zz*w+xx]; if (g!==65535 && (data.palette[g]||{}).n===hlName) x.strokeRect(m+xx*cs+1, m+zz*cs+1, cs-2, cs-2); } }
+    x.fillStyle = cssv('--mute'); x.font = '11px sans-serif'; x.textAlign='center';
+    for (let i=0;i<w;i+=5) x.fillText(i, m+i*cs+cs/2, 16);
+    x.textAlign='right'; for (let i=0;i<d;i+=5) x.fillText(i, m-5, m+i*cs+cs/2+4);
+    return counts;
+  }
+  const cellSize = w => Math.max(8, Math.min(28, Math.floor(860/w)));
+
+  async function show(y){
+    cur = y; const my = ++token; refreshProgress();
+    $('#pl-range').value = y+1; $('#pl-lbl').textContent = 'Ebene '+(y+1)+' von '+sy;
+    let L; try { L = await layer(y); } catch(e){ box.querySelector('.planwrap').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; return; }
+    const cv = $('#pl-canvas'); const counts = await paint(cv, L, cellSize(L.w), hl);
+    if (my !== token) return;
+    const rows = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+    $('#pl-legend').innerHTML = rows.map(([n,c])=>`<div><canvas class="ic" width="16" height="16" data-n="${esc(n)}"></canvas><span>${esc(nice(n))}</span><span>${num(c)}</span></div>`).join('') || '<span class="mute">Diese Ebene ist leer.</span>';
+    $$('#pl-legend canvas').forEach(c=>fillIcon(c, data, c.dataset.n));
+    const w=L.w, d=L.d, m=26, cs=cellSize(w);
+    cv.onmousemove = e => { const r=cv.getBoundingClientRect(), k=cv.width/r.width; const cx=Math.floor(((e.clientX-r.left)*k-m)/cs), cz=Math.floor(((e.clientY-r.top)*k-m)/cs);
+      const tip=$('#tip'); if (cx<0||cz<0||cx>=w||cz>=d){ tip.style.display='none'; return; } const g=L.c[cz*w+cx];
+      tip.textContent = (g===65535 ? 'Luft' : nice((data.palette[g]||{}).n||'?')) + '  ('+cx+', '+y+', '+cz+')'; tip.style.display='block'; tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY+14)+'px'; };
+    cv.onmouseleave = ()=>{ $('#tip').style.display='none'; };
+  }
+  $('#pl-range').oninput = e => { hl=null; show(+e.target.value-1); };
+  $('#pl-prev').onclick = () => { if (cur>0) { hl=null; show(cur-1); } };
+  $('#pl-next').onclick = () => { if (cur<sy-1) { hl=null; show(cur+1); } };
+  $('#pl-png').onclick = () => { $('#pl-canvas').toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=s.title.replace(/[^A-Za-z0-9_-]+/g,'_')+'_ebene_'+(cur+1)+'.png'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }); };
+
+  // ---- Alle Ebenen drucken
+  $('#pl-print').onclick = async () => {
+    const btn = $('#pl-print'); btn.disabled = true; const old = btn.textContent;
+    try {
+      let html = `<h1>${esc(s.title)}</h1><p>${s.dims.join(' × ')} Blöcke &middot; ${num(s.blocks)} Blöcke insgesamt &middot; Ansicht von oben, Norden ist oben</p>`;
+      for (let y=0; y<sy; y++){
+        btn.textContent = 'Ebene '+(y+1)+'/'+sy+' …';
+        const L = await layer(y); const c = document.createElement('canvas'); const counts = await paint(c, L, cellSize(L.w), null);
+        const rows = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+        html += `<section class="pp"><h2>Ebene ${y+1} von ${sy}</h2><img src="${c.toDataURL('image/png')}" alt=""><ul>${rows.map(([n,k])=>`<li>${num(k)} × ${esc(nice(n))}</li>`).join('') || '<li>leer</li>'}</ul></section>`;
+      }
+      $('#printarea').innerHTML = html; await new Promise(r=>setTimeout(r,300)); window.print();
+    } catch(e){ toast(e.message); }
+    btn.disabled = false; btn.textContent = old;
+  };
+
+  // ---- Schritt-fuer-Schritt-Anleitung
+  let steps = null, si = 0;
+  async function buildSteps(){
+    const out = [];
+    for (let y=0; y<sy; y++){
+      $('#tutbox').innerHTML = '<span class="mute">Anleitung wird vorbereitet … Ebene '+(y+1)+'/'+sy+'</span>';
+      const L = await layer(y); const counts = {};
+      for (const g of L.c){ if (g===65535) continue; const n=(data.palette[g]||{}).n||'?'; counts[n]=(counts[n]||0)+1; }
+      // Erst die Bloecke mit den meisten Stuecken, dann der Rest
+      Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([n,c])=>out.push({y, n, c}));
+    }
+    return out;
+  }
+  function showStep(){
+    const st = steps[si]; hl = st.n; show(st.y);
+    $('#tutbox').innerHTML = `<div class="row" style="justify-content:space-between"><div class="row"><canvas class="ic" id="tt-ic" width="16" height="16"></canvas><b>Schritt ${si+1} von ${steps.length}:</b> <span>Ebene ${st.y+1} &middot; ${num(st.c)} &times; ${esc(nice(st.n))}</span></div><div class="row"><button class="btn sm" id="tt-prev">&larr; Zur&uuml;ck</button><button class="btn sm pri" id="tt-next">Weiter &rarr;</button><button class="btn sm" id="tt-end">Beenden</button></div></div>
+      <div class="progress" style="margin:8px 0 0"><i style="width:${Math.round(100*(si+1)/steps.length)}%"></i></div><div class="mute" style="font-size:13px;margin-top:6px">Gelb umrandet sind die Felder, auf die du diesen Block jetzt setzt. Tasten: &larr; &rarr;</div>`;
+    fillIcon($('#tt-ic'), data, st.n);
+    $('#tt-prev').onclick = () => { if (si>0){ si--; showStep(); } };
+    $('#tt-next').onclick = () => { if (si<steps.length-1){ si++; showStep(); } else { toast('Geschafft! Alle Schritte durch.'); endTut(); } };
+    $('#tt-end').onclick = endTut;
+  }
+  function endTut(){ steps=null; hl=null; $('#tutbox').style.display='none'; $('#pl-tut').textContent='Schritt-für-Schritt-Anleitung'; show(cur); }
+  $('#pl-tut').onclick = async () => {
+    if (steps) { endTut(); return; }
+    $('#tutbox').style.display='block'; $('#pl-tut').textContent='Anleitung beenden';
+    steps = await buildSteps(); si = 0;
+    if (!steps.length) { endTut(); return; }
+    showStep();
+  };
+  box.tabIndex = 0;
+  box.addEventListener('keydown', e=>{ if(!steps) return; if (e.key==='ArrowRight') $('#tt-next').click(); if (e.key==='ArrowLeft') $('#tt-prev').click(); });
+  show(0);
+}
+
+// ---------------------------------------------------------------- Automatische Fotos aus dem Inneren der Base
+const photoCache = new Map();
+function findSpots(data){
+  const [sx,sy,sz] = data.size; const pal = data.palette;
+  const key = (x,y,z) => (x*sy + y)*sz + z;
+  const solid = new Map(); const list = [];
+  const TERRAIN = new Set(['dirt','grass_block','coarse_dirt','podzol','mycelium','rooted_dirt','bedrock','deepslate','stone','sand','red_sand','gravel','tuff','netherrack','clay','mud','dirt_path','farmland','snow_block','ice']);
+  const n = data.v.length/4;
+  for (let i=0;i<n;i++){ const g=data.v[4*i+3], st=pal[g]; if (!(st.o || st.tr)) continue; const x=data.v[4*i], y=data.v[4*i+1], z=data.v[4*i+2]; solid.set(key(x,y,z), g); list.push([x,y,z]); }
+  const S = (x,y,z) => solid.has(key(x,y,z));
+  const isTerrain = (x,y,z) => { const g=solid.get(key(x,y,z)); return g!==undefined && TERRAIN.has((pal[g]||{}).n); };
+  const dirs = []; for (let a=0;a<16;a++){ const t=a*Math.PI/8; dirs.push([Math.cos(t), Math.sin(t)]); }
+  const cands = [];
+  for (const [x,y,z] of list){
+    if (S(x,y+1,z) || S(x,y+2,z) || S(x,y+3,z)) continue;        // 2 Bloecke Platz ueber dem Boden
+    const cx=x+0.5, cz=z+0.5, ey=y+2;                            // Augenhoehe liegt im Block y+2
+    let ceiling=false, ceilTerrain=false; for (let k=3;k<=9;k++) if (S(x,y+k,z)) { ceiling=true; ceilTerrain=isTerrain(x,y+k,z); break; }
+    if (!ceiling || ceilTerrain || isTerrain(x,y,z)) continue;   // kein Raum im Boden oder Fels
+    let terr = 0;
+    const dist = dirs.map(([dx,dz])=>{ for (let k=0.5;k<=14;k+=0.5){ const bx=Math.floor(cx+dx*k), bz=Math.floor(cz+dz*k); if (S(bx, ey, bz) || S(bx, y+1, bz)) { if (isTerrain(bx, ey, bz) || isTerrain(bx, y+1, bz)) terr++; return k; } } return 15; });
+    if (terr > 3) continue;
+    const hits = dist.filter(d=>d<15).length;
+    if (hits < 13) continue;                                     // wirklich in einem geschlossenen Raum
+    if (Math.min(...dist) < 1.4) continue;                       // nicht direkt an der Wand
+    // Blickrichtung: die mit der groessten Raumtiefe in einem 60-Grad-Faecher
+    let bestA=-1, bestS=-1; for (let a=0;a<16;a++){ let sc=0, open=false; for (let o=-2;o<=2;o++){ const d=dist[(a+o+16)%16]; if (d>=15) open=true; sc+=Math.min(d,12); } if (!open && sc>bestS){ bestS=sc; bestA=a; } }
+    if (bestA<0) continue;                                       // Blick darf nirgends ins Freie gehen
+    const total = dist.reduce((s,d)=>s+Math.min(d,12),0);
+    // Mehr Raumtiefe ist besser, aber nicht riesig und leer
+    cands.push({x:cx, y:y+1, z:cz, a:bestA, score: total + bestS*0.5 + Math.random()*0.01});
+  }
+  cands.sort((p,q)=>q.score-p.score);
+  const out = [];
+  const far = Math.max(6, 0.22*Math.max(sx,sz));
+  for (const c of cands){
+    if (out.every(o=>Math.hypot(o.x-c.x,o.z-c.z) >= far || Math.abs(o.y-c.y) >= 4)) { out.push(c); if (out.length===2) break; }
+  }
+  return out.map(c=>({pos:[c.x, c.y+1.62, c.z], ang:c.a*Math.PI/8}));
+}
+
+const FEATURES = {crafting_table:3, enchanting_table:3, beacon:3, furnace:2.5, blast_furnace:2.5, smoker:2.5, anvil:2.5, chipped_anvil:2.5, damaged_anvil:2.5,
+  smithing_table:2.5, brewing_stand:2.5, chest:2, trapped_chest:2, barrel:2, ender_chest:2, respawn_anchor:2, lectern:1.5, loom:1.5, grindstone:1.5,
+  stonecutter:1.5, cartography_table:1.5, fletching_table:1.5, cauldron:1.5, jukebox:1.5, lodestone:1.5, bell:1.5, campfire:1.5, bookshelf:1, composter:1, hopper:1, dispenser:1, dropper:1};
+function featureWeight(name){ if (!name) return 0; if (FEATURES[name]) return FEATURES[name]; if (name.endsWith('_bed')) return 1.5; if (name.endsWith('shulker_box')) return 1.5; return 0; }
+// Sucht Kamerastandorte in geschlossenen Raeumen, von denen aus moeglichst viele "interessante" Bloecke (Werkbank, Ofen, Amboss, Truhen ...) zu sehen sind
+function findFeatureSpots(data){
+  const [sx,sy,sz] = data.size; const pal = data.palette;
+  const key = (x,y,z) => (x*sy + y)*sz + z;
+  const solid = new Map(); const feats = [];
+  const n = data.v.length/4;
+  for (let i=0;i<n;i++){ const g=data.v[4*i+3], st=pal[g]; const x=data.v[4*i], y=data.v[4*i+1], z=data.v[4*i+2];
+    const w = featureWeight(st.n); if (w>0) feats.push({x,y,z,w,name:st.n});
+    if (st.o || st.tr) solid.set(key(x,y,z), g); }
+  if (!feats.length) return [];
+  const TERRAIN = new Set(['dirt','grass_block','coarse_dirt','podzol','mycelium','rooted_dirt','bedrock','deepslate','stone','sand','red_sand','gravel','tuff','netherrack','clay','mud','dirt_path','farmland','snow_block','ice']);
+  const S = (x,y,z) => solid.has(key(x,y,z));
+  const isT = (x,y,z) => { const g=solid.get(key(x,y,z)); return g!==undefined && TERRAIN.has((pal[g]||{}).n); };
+  feats.sort((a,b)=>b.w-a.w); const F = feats.slice(0, 300);
+  const seen = new Set(), cands = [];
+  for (const f of F){
+    for (let dx=-8; dx<=8; dx++) for (let dz=-8; dz<=8; dz++) for (let dy=-2; dy<=1; dy++){
+      const cx=f.x+dx, cy=f.y+dy, cz=f.z+dz; if (cx<0||cz<0||cy<1||cx>=sx||cz>=sz) continue;
+      const k = key(cx,cy,cz); if (seen.has(k)) continue; seen.add(k);
+      if (!S(cx,cy-1,cz) || S(cx,cy,cz) || S(cx,cy+1,cz) || S(cx,cy+2,cz) || isT(cx,cy-1,cz)) continue;
+      let ceil=false, ceilT=false; for (let q=3;q<=9;q++) if (S(cx,cy+q,cz)) { ceil=true; ceilT=isT(cx,cy+q,cz); break; }
+      if (!ceil || ceilT) continue;
+      cands.push([cx,cy,cz]);
+    }
+  }
+  const res = [];
+  for (const [cx,cy,cz] of cands){
+    const ex=cx+0.5, ey=cy+1.62, ez=cz+0.5;
+    const vis = [];
+    for (const f of F){
+      const dx=f.x+0.5-ex, dy=f.y+0.5-ey, dz=f.z+0.5-ez, d=Math.hypot(dx,dz);
+      if (d<1.6 || d>10 || Math.abs(dy)>5) continue;
+      let blocked=false; const steps=Math.ceil(Math.hypot(dx,dy,dz)/0.4);
+      for (let s=1; s<steps-1 && !blocked; s++){ const t=s/steps; const bx=Math.floor(ex+dx*t), by=Math.floor(ey+dy*t), bz=Math.floor(ez+dz*t); if (S(bx,by,bz) && !(bx===f.x&&by===f.y&&bz===f.z)) blocked=true; }
+      if (!blocked) vis.push({f, ang:Math.atan2(dz,dx), d, el:Math.atan2(dy,d)});
+    }
+    if (!vis.length) continue;
+    let best=null;
+    for (let a=0;a<16;a++){ const h=a*Math.PI/8; let sc=0, set=[]; const cnt={};
+      vis.sort((p,q)=>q.f.w-p.f.w);
+      for (const v of vis){ let da=Math.abs(v.ang-h); da=Math.min(da, 2*Math.PI-da); if (da>0.7 || v.el<-0.6 || v.el>0.55) continue;
+        cnt[v.f.name]=(cnt[v.f.name]||0)+1; if (cnt[v.f.name]>3) continue;          // gleiche Bloecke zaehlen nur bis 3x
+        sc += v.f.w * (v.d>=2.5 && v.d<=8 ? 1 : 0.6); set.push(v.f); }
+      if (!best || sc>best.sc) best={sc, set, h};
+    }
+    if (best && best.sc>0) { best.sc += new Set(best.set.map(f=>f.name)).size * 1.5; res.push({cx,cy,cz,ex,ey,ez,...best}); }
+  }
+  res.sort((a,b)=>b.sc-a.sc);
+  const out = [];
+  for (const r of res){
+    const ids = new Set(r.set.map(f=>f.x+','+f.y+','+f.z));
+    const ok = out.every(o=>{ const fresh = r.set.filter(f=>!o.ids.has(f.x+','+f.y+','+f.z)).reduce((s,f)=>s+f.w,0); return fresh >= 0.5*r.sc && Math.hypot(o.cx-r.cx,o.cz-r.cz) >= 3; });
+    if (!ok) continue;
+    r.ids = ids; out.push(r); if (out.length===2) break;
+  }
+  return out.map(r=>{
+    let cxx=0, cyy=0, czz=0, w=0; for (const f of r.set){ cxx+=(f.x+0.5)*f.w; cyy+=(f.y+0.5)*f.w; czz+=(f.z+0.5)*f.w; w+=f.w; }
+    const names = [...new Set(r.set.sort((a,b)=>b.w-a.w).map(f=>nice(f.name)))].slice(0,3);
+    return {pos:[r.ex,r.ey,r.ez], look:[cxx/w, cyy/w, czz/w], label:'Mit '+names.join(', '), cx:r.cx, cz:r.cz, cy:r.cy};
+  });
+}
+let photoRenderer = null;
+async function takePhotos(data, id){
+  if (photoCache.has(id)) return photoCache.get(id);
+  const p = (async()=>{
+    const {scene, grid, center, radius} = await buildScene(data);
+    grid.visible = false; scene.background = new THREE.Color(0x9ec8ff);
+    if (!photoRenderer){ const c=document.createElement('canvas'); c.width=960; c.height=540; photoRenderer=new THREE.WebGLRenderer({canvas:c,antialias:true,preserveDrawingBuffer:true}); photoRenderer.setSize(960,540,false); }
+    const shots = [];
+    let spots = findFeatureSpots(data);
+    if (spots.length < 2) {
+      for (const s of findSpots(data)) {
+        if (spots.length >= 2) break;
+        if (spots.some(o=>Math.hypot(o.pos[0]-s.pos[0], o.pos[2]-s.pos[2]) < 5)) continue;
+        spots.push({pos:s.pos, look:[s.pos[0]+Math.cos(s.ang)*10, s.pos[1]-0.9, s.pos[2]+Math.sin(s.ang)*10], label:'Von innen'});
+      }
+    }
+    for (const s of spots){
+      const cam = new THREE.PerspectiveCamera(78, 16/9, 0.05, 500);
+      cam.position.set(s.pos[0], s.pos[1], s.pos[2]);
+      cam.lookAt(s.look[0], s.look[1], s.look[2]);
+      photoRenderer.render(scene, cam);
+      shots.push({url: photoRenderer.domElement.toDataURL('image/jpeg', 0.9), label: s.label});
+    }
+    // Aussenansichten aus vier Richtungen
+    const ext = [[0.8,0.5],[2.4,0.42],[3.95,0.5],[5.5,0.42]];
+    for (const [az, el] of ext){
+      const cam = new THREE.PerspectiveCamera(45, 16/9, 0.1, 2000); const d=radius*2.0+4;
+      cam.position.set(center.x+d*Math.cos(az)*Math.cos(el), center.y+d*Math.sin(el)+radius*0.2, center.z+d*Math.sin(az)*Math.cos(el)); cam.lookAt(center);
+      grid.visible = true; photoRenderer.render(scene, cam);
+      shots.push({url: photoRenderer.domElement.toDataURL('image/jpeg', 0.88), label: 'Au\u00dfenansicht'});
+    }
+    scene.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); });
+    return shots;
+  })().catch(()=>[]);
+  photoCache.set(id, p); return p;
+}
+function showPhotos(shots, title, s){
+  const box = $('#photos'); if (!box || !shots.length) { if (box) box.style.display='none'; return; }
+  box.style.display = '';
+  box.innerHTML = `<h3 style="margin:0 0 10px">Fotos aus der Base</h3><div class="photos">${shots.map((p,i)=>`<figure data-i="${i}"><img alt="${esc(p.label)}" src="${p.url}"><figcaption>${esc(p.label)}</figcaption>${s && s.mine?`<button class="btn sm pri" data-cover="${i}" style="position:absolute;top:8px;right:8px">Als Titelbild</button>`:''}</figure>`).join('')}</div>`;
+  let cur = 0;
+  function open(i){
+    cur = (i + shots.length) % shots.length; const p = shots[cur];
+    $('#box2').innerHTML = `<img src="${p.url}" style="width:100%;border-radius:10px;display:block"><div class="row" style="margin-top:12px;justify-content:space-between"><div class="row"><button class="btn" id="ph-prev">&larr;</button><button class="btn" id="ph-next">&rarr;</button><span class="mute">${esc(p.label)} (${cur+1}/${shots.length})</span></div><div class="row"><a class="btn pri" href="${p.url}" download="${esc(title.replace(/[^A-Za-z0-9_-]+/g,'_'))}_foto_${cur+1}.jpg">Foto speichern</a><button class="btn" id="ph-close">Schlie&szlig;en</button></div></div>`;
+    $('#box2').style.width = 'min(960px,100%)'; $('#modal2').classList.add('on');
+    $('#ph-close').onclick = closeBox; $('#ph-prev').onclick = ()=>open(cur-1); $('#ph-next').onclick = ()=>open(cur+1);
+  }
+  box.onclick = async e=>{
+    const cb = e.target.closest('[data-cover]');
+    if (cb) { e.stopPropagation(); try { const blob = dataUrlToBlob(shots[+cb.dataset.cover].url); await putRaw('/api/schematics/'+s.id+'/cover', blob); s.cover = Date.now(); toast('Titelbild gesetzt'); } catch(err){ toast(err.message); } return; }
+    const f = e.target.closest('figure'); if (f) open(+f.dataset.i);
+  };
+}
+
+// ---------------------------------------------------------------- Seiten
+function cleanup(){ if(viewer){ viewer.dispose(); viewer=null; } if(heroViewer){ heroViewer.dispose(); heroViewer=null; } $('#tip').style.display='none'; }
+function setTitle(t){ document.title = trString(t ? t+' \u00b7 Schematic Hub' : 'Schematic Hub'); }
+
+let listState = {q:'', sort:'new', tag:''};
+const TAGS = ['haus','base','farm','pvp','redstone','mittelalter','modern','deko'];
+
+function cardHtml(s){
+  return `<div class="card" data-id="${s.id}"><div class="thumb" id="th${s.id}">${s.cover ? `<img alt="" src="/api/schematics/${s.id}/cover?v=${s.cover}">` : `<span class="ph">${s.has_preview?'Vorschau l&auml;dt …':'Keine Vorschau'}</span>`}${s.public?'':'<span class="lock">Privat</span>'}${progressPct(s)>0 ? `<div class="cardbar" title="Dein Bau-Fortschritt: ${progressPct(s)} %"><i style="width:${progressPct(s)}%"></i></div>` : ''}</div>
+    <button class="heart${s.liked?' on':''}" data-like="${s.id}" title="Gef&auml;llt mir">${s.liked?'♥':'♡'} <span>${s.likes}</span></button>
+    <div class="info"><h3>${esc(s.title)}</h3><div class="meta"><a class="by" data-user="${esc(s.author)}">${avatar(s.author,'',s.aav)}<span>${esc(s.author)}</span></a><span>${s.dims.join('×')}</span></div>
+    <div class="meta"><span>${num(s.blocks)} Bl&ouml;cke</span><span>&darr; ${s.downloads}</span><span>\u{1F4AC} ${s.ncomments}</span>${s.rating?`<span style="color:#ffc53d">\u2605 ${s.rating.toFixed(1)} <span class="mute">(${s.rating_n})</span></span>`:''}</div></div></div>`;
+}
+let thumbObserver = null;
+function lazyThumbs(items){
+  if (!thumbObserver) thumbObserver = new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) return; thumbObserver.unobserve(e.target);
+    const id=+e.target.id.slice(2); const lock = (e.target.querySelector('.lock')?.outerHTML || '') + (e.target.querySelector('.cardbar')?.outerHTML || '');
+    thumbFor(id).then(url=>{ if(url && e.target.isConnected) e.target.innerHTML = '<img alt="" src="'+url+'">'+lock; });
+  }),{rootMargin:'200px'});
+  items.forEach(s=>{ const el=$('#th'+s.id); if(el && s.has_preview && !s.cover) thumbObserver.observe(el); });
+}
+async function toggleLike(id, btn){
+  if (!me) { openAuth('login'); return null; }
+  const r = await post('/api/schematics/'+id+'/like');
+  if (btn){ btn.classList.toggle('on', r.liked); const sp=btn.querySelector('span'); if(sp) sp.textContent=r.likes; const t=btn.firstChild; if (t && t.nodeType===3) t.nodeValue=(r.liked?'♥':'♡')+' '; }
+  return r;
+}
+
+async function pageList(opts){
+  const mode = opts.mode, app = $('#app');
+  let head = '', profile = null;
+  if (mode==='user') {
+    try { profile = await api('/api/users/'+encodeURIComponent(opts.user)); } catch(e){ app.innerHTML='<div class="empty"><h2>'+esc(e.message)+'</h2></div>'; return; }
+    setTitle(profile.name);
+    head = `<div class="profile">${avatar(profile.name,'lg',profile.av)}<div><h1 style="margin:0;font-size:36px">${esc(profile.name)}</h1><div class="mute">Dabei seit ${fmtDate(profile.joined)}</div>
+      ${profile.self?'':`<button class="btn ${profile.i_follow?'':'pri'}" id="followbtn" style="margin-top:10px">${profile.i_follow?'Folge ich':'Folgen'}</button>`}
+      <div class="statrow" style="margin:12px 0 0"><div><b id="nfol">${num(profile.followers)}</b><span>Follower</span></div><div><b>${num(profile.following)}</b><span>Folgt</span></div><div><b>${num(profile.uploads)}</b><span>Schematics</span></div><div><b>${num(profile.downloads)}</b><span>Downloads</span></div><div><b>${num(profile.likes)}</b><span>Likes erhalten</span></div><div><b>${num(profile.blocks)}</b><span>Bl&ouml;cke gebaut</span></div></div></div></div>`;
+  } else if (mode==='mine') { setTitle('Meine Schematics'); head = '<div style="padding:34px 0 0"><h1 style="margin:0;font-size:38px">Meine <b style="color:var(--accent)">Schematics</b></h1></div>'; }
+  else if (mode==='favs') { setTitle('Favoriten'); head = '<div style="padding:34px 0 0"><h1 style="margin:0;font-size:38px">Meine <b style="color:var(--heart)">Favoriten</b></h1></div>'; }
+  else { setTitle(''); head = `<section class="hero"><div><h1>Baupl&auml;ne f&uuml;r <b>Minecraft</b>.<br>Finden, ansehen, bauen.</h1><p>Lade Schematics von anderen Spielern herunter, sieh sie in 3D mit echten Bl&ouml;cken an und baue sie Ebene f&uuml;r Ebene nach.</p><div class="statrow" id="stats"></div></div><div id="herov"></div></section>`; }
+  app.innerHTML = head
+    + `<div class="search" style="margin-top:14px"><input id="q" type="search" placeholder="Suche nach Name, Tag oder Autor …  ( / )" value="${esc(listState.q)}">
+       <select id="sort"><option value="new">Neueste</option><option value="likes">Beliebteste (Likes)</option><option value="downloads">Meiste Downloads</option><option value="rating">Beste Bewertung</option><option value="views">Meist gesehen</option><option value="size">Gr&ouml;&szlig;te</option><option value="old">&Auml;lteste</option></select></div>
+     <div class="chips" id="chips"></div><div id="list"></div><div style="text-align:center;margin-bottom:60px"><button class="btn" id="more" style="display:none">Mehr laden</button></div>`;
+  $('#sort').value = listState.sort;
+  const chips = $('#chips'); chips.innerHTML = TAGS.map(t=>`<span class="chip${listState.tag===t?' on':''}" data-t="${t}">#${t}</span>`).join('');
+  chips.onclick = e=>{ const t=e.target.dataset.t; if(!t) return; listState.tag = listState.tag===t ? '' : t; $$('.chip').forEach(c=>c.classList.toggle('on', c.dataset.t===listState.tag)); load(true); };
+  let timer; $('#q').oninput = e=>{ clearTimeout(timer); timer=setTimeout(()=>{ listState.q=e.target.value; load(true); },250); };
+  $('#sort').onchange = e=>{ listState.sort=e.target.value; load(true); };
+  const fb = $('#followbtn'); if (fb) fb.onclick = async()=>{ if(!me){ openAuth('login'); return; } try{ const r=await post('/api/users/'+encodeURIComponent(opts.user)+'/follow'); fb.textContent=r.following?'Folge ich':'Folgen'; fb.classList.toggle('pri',!r.following); $('#nfol').textContent=num(r.followers); }catch(err){ toast(err.message); } };
+  let offset = 0, items = [];
+  async function load(reset){
+    if (reset){ offset = 0; items = []; $('#list').innerHTML = '<div class="grid">'+'<div class="skeleton"></div>'.repeat(4)+'</div>'; }
+    const p = new URLSearchParams({q:listState.q, sort:listState.sort, tag:listState.tag, offset, limit:24});
+    if (mode==='mine') p.set('mine',1); if (mode==='favs') p.set('fav',1); if (mode==='user') p.set('user', opts.user);
+    let d; try { d = await api('/api/schematics?'+p); } catch(err){ $('#list').innerHTML='<div class="empty">'+esc(err.message)+'</div>'; return; }
+    const first = items.length === 0; items = items.concat(d.items); offset += d.items.length;
+    if (!items.length) { $('#list').innerHTML = '<div class="empty">'+(mode==='mine'?'Du hast noch nichts hochgeladen.':mode==='favs'?'Noch keine Favoriten. Tippe auf das Herz bei einem Schematic.':'Noch nichts gefunden.')+'</div>'; $('#more').style.display='none'; return; }
+    if (first) $('#list').innerHTML = '<div class="grid" id="grid"></div>';
+    $('#grid').insertAdjacentHTML('beforeend', d.items.map(cardHtml).join(''));
+    $('#more').style.display = offset < d.total ? 'inline-block' : 'none';
+    lazyThumbs(d.items);
+  }
+  $('#more').onclick = () => load(false);
+  $('#list').onclick = async e=>{
+    const hb = e.target.closest('[data-like]'); if (hb){ e.stopPropagation(); try{ await toggleLike(hb.dataset.like, hb); }catch(err){ toast(err.message); } return; }
+    const ub = e.target.closest('[data-user]'); if (ub){ e.stopPropagation(); location.hash = '#/u/'+ub.dataset.user; return; }
+    const c = e.target.closest('.card'); if (c) location.hash = '#/s/'+c.dataset.id;
+  };
+  load(true);
+  if (mode==='home') {
+    api('/api/stats').then(st=>{ $('#stats').innerHTML = `<div><b id="s1">0</b><span>Schematics</span></div><div><b id="s2">0</b><span>Bauer</span></div><div><b id="s3">0</b><span>Downloads</span></div><div><b id="s4">0</b><span>Bl&ouml;cke</span></div>`; countUp($('#s1'),st.schematics); countUp($('#s2'),st.builders); countUp($('#s3'),st.downloads); countUp($('#s4'),st.blocks); }).catch(()=>{});
+    api('/api/featured').then(async f=>{ if(!f.item || !$('#herov')) return; const data = await (await fetch('/api/schematics/'+f.item.id+'/preview')).json();
+      const host = $('#herov'); if (!host) return;
+      host.innerHTML = `<div class="hv" id="hv"><span class="badge">Bau des Moments</span><div class="cap"><span></span><a href="#/s/${f.item.id}">${esc(f.item.title)} &rarr;</a></div></div>`;
+      heroViewer = makeViewer($('#hv'), data, {auto:true}); }).catch(()=>{});
+  }
+}
+
+function matsPanel(s, data){
+  const key = 'hub.mats.'+s.id; let done = new Set(); try { done = new Set(JSON.parse(localStorage.getItem(key)||'[]')); } catch(e){}
+  let mode = 'count'; const panel = $('#matpanel');
+  const fmt = n => mode==='count' ? num(n) : mode==='stacks' ? (n>=64 ? Math.floor(n/64)+' × 64'+(n%64?' + '+(n%64):'') : String(n)) : (n/1728).toFixed(n>=1728?1:2).replace('.',',')+' Shulker';
+  function draw(){
+    panel.innerHTML = `<div class="row" style="justify-content:space-between"><h3 style="margin:0">Materialliste</h3><div class="seg" id="seg"><button data-m="count" class="${mode==='count'?'on':''}">Anzahl</button><button data-m="stacks" class="${mode==='stacks'?'on':''}">Stacks</button><button data-m="shulker" class="${mode==='shulker'?'on':''}">Shulker</button></div></div>
+      <div class="progress"><i style="width:${s.materials.length ? Math.round(100*done.size/s.materials.length) : 0}%"></i></div>
+      <div class="mute" style="font-size:13px;margin:-4px 0 8px">${done.size} von ${s.materials.length} Materialien gesammelt</div>
+      <div class="mats"><table>${s.materials.map(m=>`<tr class="${done.has(m[0])?'done':''}"><td><input type="checkbox" data-n="${esc(m[0])}" ${done.has(m[0])?'checked':''}><canvas class="ic" width="16" height="16" data-b="${esc(m[0])}"></canvas>${esc(nice(m[0]))}</td><td>${fmt(m[1])}</td></tr>`).join('')}</table></div>
+      <div class="row" style="margin-top:12px"><button class="btn sm" id="m-copy">Liste kopieren</button><button class="btn sm" id="m-csv">Als CSV laden</button><button class="btn sm" id="m-reset">Haken zur&uuml;cksetzen</button></div>`;
+    $('#seg').onclick = e=>{ const m=e.target.dataset.m; if(m){ mode=m; draw(); } };
+    panel.querySelector('table').onchange = e=>{ const n=e.target.dataset.n; if(!n) return; e.target.checked ? done.add(n) : done.delete(n); try{localStorage.setItem(key, JSON.stringify([...done]));}catch(_){} draw(); };
+    $('#m-copy').onclick = ()=>copyText(s.title+'\n'+s.materials.map(m=>m[1]+'x '+nice(m[0])).join('\n'), 'Materialliste kopiert');
+    $('#m-csv').onclick = ()=>{ const csv='Block;Anzahl\n'+s.materials.map(m=>nice(m[0])+';'+m[1]).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'})); a.download=s.title.replace(/[^A-Za-z0-9_-]+/g,'_')+'_materialien.csv'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); };
+    $('#m-reset').onclick = ()=>{ done.clear(); try{localStorage.removeItem(key);}catch(_){} draw(); };
+    if (data) $$('canvas.ic[data-b]', panel).forEach(c=>{ if(!fillIcon(c, data, c.dataset.b)) c.style.display='none'; });
+  }
+  draw(); return draw;
+}
+
+async function loadComments(s){
+  const box = $('#comments');
+  let d; try { d = await api('/api/schematics/'+s.id+'/comments'); } catch(e){ box.innerHTML=''; return; }
+  box.innerHTML = `<h3 style="margin:0 0 6px">Kommentare (${d.items.length})</h3>
+    <div class="comments">${d.items.map(c=>`<div class="c">${avatar(c.author,'',c.aav)}<div style="flex:1;min-width:0"><div><a class="who" href="#/u/${esc(c.author)}">${esc(c.author)}</a><span class="when">${ago(c.created)}</span>${c.can_delete?` <button class="btn sm dng" data-del="${c.id}" style="float:right">L&ouml;schen</button>`:''}${me && c.author!==me.name?` <button class="btn sm" data-rep="${c.id}" style="float:right;margin-right:6px">Melden</button>`:''}</div><div class="txt">${esc(c.text)}</div></div></div>`).join('') || '<div class="mute" style="padding:10px 0">Noch keine Kommentare.</div>'}</div>
+    ${me ? `<form id="cform" style="margin-top:12px;display:grid;gap:8px"><textarea id="ctext" rows="3" maxlength="1000" placeholder="Schreibe einen Kommentar …"></textarea><div class="row"><button class="btn pri" type="submit">Kommentar senden</button></div></form>`
+         : `<button class="btn" id="clogin" style="margin-top:12px">Einloggen, um zu kommentieren</button>`}`;
+  box.onclick = async e=>{ const r=e.target.closest('[data-rep]'); if(r){ openReport('comment', +r.dataset.rep); return; } const b=e.target.closest('[data-del]'); if(!b) return; if(!confirm('Kommentar löschen?')) return; await api('/api/comments/'+b.dataset.del,{method:'DELETE'}); loadComments(s); };
+  const f=$('#cform'); if(f) f.onsubmit = async e=>{ e.preventDefault(); const t=$('#ctext').value.trim(); if(!t) return; try{ await post('/api/schematics/'+s.id+'/comments',{text:t}); loadComments(s); }catch(err){ toast(err.message); } };
+  const cl=$('#clogin'); if(cl) cl.onclick=()=>openAuth('login');
+}
+
+async function pageDetail(id){
+  const app=$('#app'); app.innerHTML='<div class="detail"><div class="skeleton" style="height:420px"></div><div class="skeleton" style="height:420px"></div></div>';
+  let s; try { s = await api('/api/schematics/'+id); } catch(err){ app.innerHTML='<div class="empty"><h2>'+esc(err.message)+'</h2></div>'; return; }
+  setTitle(s.title);
+  const fileName = (s.title.replace(/[^A-Za-z0-9_-]+/g,'_').replace(/^_+|_+$/g,'') || 'schematic').toLowerCase();
+  function infoHtml(){
+    return `<h2>${esc(s.title)}</h2><div class="mute row" style="gap:8px"><a class="by" href="#/u/${esc(s.author)}" style="color:inherit">${avatar(s.author,'',s.aav)}<span>${esc(s.author)}</span></a><span>&middot; ${fmtDate(s.created)}</span>${s.public?'':'<span>&middot; <b>privat</b></span>'}${s.updated?`<span>&middot; bearbeitet ${ago(s.updated)}</span>`:''}</div>
+      ${s.tags.length?'<div class="tags">'+s.tags.map(t=>`<span class="tag" data-tag="${esc(t)}">#${esc(t)}</span>`).join('')+'</div>':''}
+      ${s.descr?`<p style="white-space:pre-wrap">${esc(s.descr)}</p>`:''}
+      <div class="row" style="margin:6px 0 10px;gap:10px"><div class="stars${s.mine?' ro':''}" id="stars" title="${s.mine?'Den eigenen Bau kannst du nicht bewerten':'Bewerten'}">${starsHtml(s.rating)}</div><span class="mute" id="rtxt" style="font-size:14px">${s.rating?s.rating.toFixed(1)+' ('+s.rating_n+(s.rating_n===1?' Bewertung':' Bewertungen')+')':'Noch keine Bewertung'}${s.my_rating?' &middot; deine: '+s.my_rating+'\u2605':''}</span></div>
+      <div class="stats"><div class="stat"><b>${s.dims.join('×')}</b><span>Gr&ouml;&szlig;e</span></div><div class="stat"><b>${num(s.blocks)}</b><span>Bl&ouml;cke</span></div><div class="stat"><b>${num(s.downloads)}</b><span>Downloads</span></div>
+      <div class="stat"><b>${num(s.views)}</b><span>Aufrufe</span></div><div class="stat"><b id="lk">${s.likes}</b><span>Likes</span></div><div class="stat"><b>${s.ncomments}</b><span>Kommentare</span></div></div>
+      <div class="row" style="margin-bottom:10px"><button class="btn heart-btn${s.liked?' pri':''}" id="likebtn" style="flex:1">${s.liked?'♥ Gefällt dir':'♡ Gefällt mir'}</button><button class="btn" id="sharebtn" title="Link kopieren">Teilen</button></div>
+      <div class="row" style="margin-bottom:10px"><button class="btn" id="colbtn" style="flex:1">+ Sammlung</button>${s.mine?'':'<button class="btn" id="repbtn" style="flex:1">Melden</button>'}</div>
+      <a class="btn pri" style="display:block;text-align:center;padding:13px" href="/api/schematics/${s.id}/download" download>&darr; Herunterladen (${fmtSize(s.size)})</a>
+      ${s.mine?'<div class="row" style="margin-top:10px"><button class="btn" id="editbtn" style="flex:1">Bearbeiten</button><button class="btn dng" id="del" style="flex:1">L&ouml;schen</button></div>':''}`;
+  }
+  app.innerHTML = `<div class="detail"><div>
+      <div class="tabs2"><button id="tab3d" class="on">3D-Ansicht</button><button id="tabplan">Ebenen-Plan</button></div>
+      <div id="pane3d"><div class="viewer" id="viewer"><div class="msg" id="vmsg">Vorschau l&auml;dt …</div><div class="hint">Ziehen = drehen &middot; Scrollen = zoomen</div>
+        <div class="vtools"><button id="vt-auto" title="Drehen an/aus">⟳</button><button id="vt-grid" title="Raster">▦</button><button id="vt-shot" title="Screenshot">\u{1F4F7}</button><button id="vt-full" title="Vollbild">⛶</button><button id="vt-reset" title="Ansicht zurücksetzen">⌂</button></div></div>
+        <div class="clip" id="clip"></div></div>
+      <div class="plan" id="panePlan" style="display:none"></div>
+      <div class="panel" id="photos" style="margin-top:18px;display:none"></div>
+      <div class="panel" id="matpanel" style="margin-top:18px"></div>
+      <div class="panel" id="comments" style="margin-top:18px"></div>
+    </div><div><div class="panel" id="infopanel">${infoHtml()}</div>
+      <div class="panel" style="margin-top:18px"><h3 style="margin:0 0 6px">So baust du es</h3><ol class="steps">
+        <li>Datei herunterladen und in den Ordner <code>schematics</code> deines Minecraft-Profils legen.</li>
+        <li>Im Spiel <code>M</code> dr&uuml;cken, <b>Load Schematics</b> w&auml;hlen und die Datei laden.</li>
+        <li>Mit der Blueprint-Mod geht es direkt von dieser Seite, ohne Datei kopieren: <code id="cmdtxt">/blueprint get ${s.id}</code> <button class="btn sm" id="cmdcopy">Kopieren</button></li></ol>
+        <p class="mute" style="font-size:13px;margin:6px 0 0">Die Seite muss dabei laufen. Danach richtet sich die Blaupause von selbst auf dein Geb&auml;ude aus.</p></div></div></div>`;
+  const draw = matsPanel(s, null);
+  loadComments(s);
+  function wire(){
+    const lb=$('#likebtn'); if(lb) lb.onclick = async()=>{ try{ const r=await toggleLike(s.id); if(!r) return; s.liked=r.liked; s.likes=r.likes; lb.classList.toggle('pri',r.liked); lb.textContent = r.liked?'♥ Gefällt dir':'♡ Gefällt mir'; $('#lk').textContent=r.likes; }catch(err){ toast(err.message); } };
+    const sb=$('#sharebtn'); if(sb) sb.onclick = ()=>copyText(location.href, 'Link kopiert');
+    const cb=$('#colbtn'); if(cb) cb.onclick = ()=>openCollectionPicker(s.id);
+    const rb=$('#repbtn'); if(rb) rb.onclick = ()=>openReport('schematic', s.id);
+    const st=$('#stars');
+    if (st && !s.mine) {
+      const paint = v => $$('#stars span').forEach(sp=>sp.classList.toggle('on', +sp.dataset.s <= v));
+      st.onmouseover = e=>{ const k=e.target.dataset.s; if(k) paint(+k); };
+      st.onmouseleave = ()=>paint(Math.round(s.rating||0));
+      st.onclick = async e=>{ const k=+e.target.dataset.s; if(!k) return; if(!me){ openAuth('login'); return; }
+        try { const r = await post('/api/schematics/'+s.id+'/rate', {stars: s.my_rating===k ? 0 : k}); s.rating=r.rating; s.rating_n=r.rating_n; s.my_rating=r.my_rating; paint(Math.round(s.rating||0));
+          $('#rtxt').innerHTML = (s.rating?s.rating.toFixed(1)+' ('+s.rating_n+(s.rating_n===1?' Bewertung':' Bewertungen')+')':'Noch keine Bewertung')+(s.my_rating?' &middot; deine: '+s.my_rating+'\u2605':''); } catch(err){ toast(err.message); } };
+    }
+    $$('[data-tag]').forEach(t=>t.onclick=()=>{ listState.tag=t.dataset.tag; location.hash='#/'; });
+    const del=$('#del'); if(del) del.onclick = async()=>{ if(!confirm('Wirklich löschen?')) return; await api('/api/schematics/'+id,{method:'DELETE'}); toast('Gelöscht'); location.hash='#/mine'; };
+    const eb=$('#editbtn'); if(eb) eb.onclick = ()=>{
+      $('#infopanel').innerHTML = `<h3 style="margin-top:0">Schematic bearbeiten</h3><form id="eform" style="display:grid;gap:12px"><label>Titel<input type="text" id="e-title" maxlength="80" value="${esc(s.title)}" required></label>
+        <label>Beschreibung<textarea id="e-desc" rows="4" maxlength="2000">${esc(s.descr)}</textarea></label><label>Tags (mit Komma)<input type="text" id="e-tags" value="${esc(s.tags.join(', '))}"></label>
+        <label class="row" style="grid-auto-flow:column;justify-content:start"><input type="checkbox" id="e-pub" ${s.public?'checked':''}> F&uuml;r alle sichtbar</label>
+        <label>Titelbild (optional, wird zugeschnitten)<input type="file" id="e-cover" accept="image/*"></label>${s.cover?'<button class="btn sm dng" type="button" id="e-cover-del" style="justify-self:start">Titelbild entfernen</button>':''}<div class="err" id="e-err"></div>
+        <div class="row"><button class="btn pri" type="submit">Speichern</button><button class="btn" type="button" id="e-cancel">Abbrechen</button></div></form>`;
+      $('#e-cancel').onclick = ()=>{ $('#infopanel').innerHTML=infoHtml(); wire(); };
+      const cd=$('#e-cover-del'); if(cd) cd.onclick = async()=>{ await api('/api/schematics/'+id+'/cover',{method:'DELETE'}); toast('Titelbild entfernt'); pageDetail(id); };
+      $('#eform').onsubmit = async e=>{ e.preventDefault(); try{ const cf=$('#e-cover').files[0]; if (cf) await putRaw('/api/schematics/'+id+'/cover', await imageToJpeg(cf, 960, 540, 0.88));
+        await post('/api/schematics/'+id+'/edit',{title:$('#e-title').value,descr:$('#e-desc').value,tags:$('#e-tags').value,public:$('#e-pub').checked}); toast('Gespeichert'); pageDetail(id); }catch(err){ $('#e-err').textContent=err.message; } };
+    };
+  }
+  wire();
+  $('#cmdcopy').onclick = ()=>copyText($('#cmdtxt').textContent, 'Befehl kopiert');
+  let pdata = null, planDone = false;
+  $('#tab3d').onclick = ()=>{ $('#tab3d').classList.add('on'); $('#tabplan').classList.remove('on'); $('#pane3d').style.display=''; $('#panePlan').style.display='none'; };
+  $('#tabplan').onclick = ()=>{ $('#tabplan').classList.add('on'); $('#tab3d').classList.remove('on'); $('#pane3d').style.display='none'; $('#panePlan').style.display='';
+    if (!planDone){ planDone=true; if (s.has_grid && pdata) renderPlan($('#panePlan'), id, s, pdata); else $('#panePlan').innerHTML='<div class="empty">F&uuml;r dieses Schematic gibt es keinen Ebenen-Plan (zu gro&szlig; oder keine Vorschau).</div>'; } };
+  fetch('/api/schematics/'+id+'/preview').then(r=>r.ok?r.json():null).then(data=>{
+    if(!data){ $('#vmsg').textContent = s.has_preview ? 'Vorschau nicht verfügbar.' : 'Für diese Datei gibt es keine Vorschau (zu groß).'; $$('canvas.ic[data-b]').forEach(c=>c.style.display='none'); return; }
+    pdata = data; draw();
+    setTimeout(()=>{ $('#photos').style.display=''; $('#photos').innerHTML='<h3 style="margin:0 0 10px">Fotos aus der Base</h3><div class="mute">Fotos werden gemacht …</div>'; takePhotos(data, id).then(sh=>showPhotos(sh, s.title, s)); }, 400);
+    $('#vmsg').remove(); if (viewer) viewer.dispose(); viewer = makeViewer($('#viewer'), data);
+    if (data.step>1) $('#viewer .hint').textContent += ' · vereinfachte Vorschau';
+    const sy = s.dims[1];
+    $('#clip').innerHTML = sy>1 ? `<label>Von Ebene <input type="range" id="c-lo" min="1" max="${sy}" value="1"></label><label>Bis Ebene <input type="range" id="c-hi" min="1" max="${sy}" value="${sy}"></label><span class="mute" id="c-lbl" style="font-size:13px">Alle ${sy} Ebenen</span>` : '';
+    if (sy>1){ const apply = which=>{ let lo=+$('#c-lo').value, hi=+$('#c-hi').value; if(lo>hi){ if(which==='lo') $('#c-hi').value=hi=lo; else $('#c-lo').value=lo=hi; } viewer.setClip(lo-1, hi); $('#c-lbl').textContent = (lo===1&&hi===sy) ? 'Alle '+sy+' Ebenen' : 'Ebenen '+lo+'–'+hi+' von '+sy; };
+      $('#c-lo').oninput = ()=>apply('lo'); $('#c-hi').oninput = ()=>apply('hi'); }
+    $('#vt-auto').onclick = e=>e.currentTarget.classList.toggle('off', !viewer.toggleAuto());
+    $('#vt-grid').onclick = e=>e.currentTarget.classList.toggle('off', !viewer.toggleGrid());
+    $('#vt-reset').onclick = ()=>viewer.reset();
+    $('#vt-full').onclick = ()=>viewer.full();
+    $('#vt-shot').onclick = ()=>{ const a=document.createElement('a'); a.href=viewer.shot(); a.download=fileName+'.png'; a.click(); };
+  });
+}
+
+function pageUpload(){
+  setTitle('Hochladen');
+  if(!me){ $('#app').innerHTML='<div class="empty"><h2>Bitte einloggen</h2><p>Zum Hochladen brauchst du ein Konto.</p><button class="btn pri" id="go">Einloggen oder Konto erstellen</button></div>'; $('#go').onclick=()=>openAuth('register'); return; }
+  $('#app').innerHTML = `<h2 style="margin-top:34px">Schematics hochladen</h2><form class="upl" id="uf">
+    <div class="drop" id="drop"><b id="dtxt">.litematic hierher ziehen oder klicken</b><div style="font-size:13px;margin-top:6px">.litematic, .schem (WorldEdit) oder .nbt &middot; auch mehrere auf einmal &middot; je bis 25 MB</div></div><input type="file" id="file" accept=".litematic,.schem,.nbt" multiple hidden>
+    <div class="filelist" id="flist"></div>
+    <label id="titlerow">Titel<input type="text" id="u-title" maxlength="80"></label>
+    <label>Beschreibung (f&uuml;r alle gew&auml;hlten Dateien)<textarea id="u-desc" rows="4" maxlength="2000"></textarea></label>
+    <label>Tags (mit Komma getrennt)<input type="text" id="u-tags" placeholder="haus, mittelalter, deko"></label>
+    <label class="row" style="grid-auto-flow:column;justify-content:start"><input type="checkbox" id="u-pub" checked> F&uuml;r alle sichtbar</label>
+    <div class="err" id="u-err"></div><div class="row"><button class="btn pri" id="u-go" type="submit">Hochladen</button></div></form>`;
+  let files = []; const drop=$('#drop'), inp=$('#file');
+  function pick(list){
+    const ok = [...list].filter(f=>/\.(litematic|schem|nbt)$/i.test(f.name));
+    if (!ok.length){ $('#u-err').textContent='Nur .litematic-, .schem- oder .nbt-Dateien.'; return; }
+    files = ok; $('#u-err').textContent='';
+    $('#dtxt').textContent = ok.length===1 ? ok[0].name+' ('+fmtSize(ok[0].size)+')' : ok.length+' Dateien gewählt';
+    $('#flist').innerHTML = ok.length>1 ? ok.map((f,i)=>`<div class="fitem" id="fi${i}">${esc(f.name)} <span class="mute">(${fmtSize(f.size)})</span><div class="progress"><i></i></div></div>`).join('') : '<div class="progress" id="p1" style="display:none"><i></i></div>';
+    $('#titlerow').style.display = ok.length>1 ? 'none' : '';
+    if (ok.length===1 && !$('#u-title').value) $('#u-title').value = ok[0].name.replace(/\.(litematic|schem|nbt)$/i,'').replace(/[_-]+/g,' ');
+  }
+  drop.onclick=()=>inp.click(); inp.onchange=()=>pick(inp.files);
+  drop.ondragover=e=>{e.preventDefault(); drop.classList.add('over');}; drop.ondragleave=()=>drop.classList.remove('over');
+  drop.ondrop=e=>{e.preventDefault(); drop.classList.remove('over'); pick(e.dataTransfer.files);};
+  function send(file, params, bar){ return new Promise((res,rej)=>{ const x=new XMLHttpRequest(); x.open('POST','/api/upload?'+new URLSearchParams(params)); x.setRequestHeader('X-Requested-With','hub'); x.setRequestHeader('Content-Type','application/octet-stream');
+    x.upload.onprogress = e=>{ if(e.lengthComputable && bar) bar.style.width = Math.round(100*e.loaded/e.total)+'%'; };
+    x.onload = ()=>{ let d={}; try{d=JSON.parse(x.responseText);}catch(_){} x.status===200 ? res(d) : rej(new Error(d.error||'Fehler '+x.status)); };
+    x.onerror = ()=>rej(new Error('Der Server ist nicht erreichbar.')); x.send(file); }); }
+  $('#uf').onsubmit = async e=>{
+    e.preventDefault(); if(!files.length){ $('#u-err').textContent='Bitte zuerst eine Datei wählen.'; return; }
+    if (files.length===1 && $('#u-title').value.trim().length<2){ $('#u-err').textContent='Bitte einen Titel angeben.'; return; }
+    const b=$('#u-go'); b.disabled=true; $('#u-err').textContent=''; let lastId=null, fails=[];
+    for (let i=0;i<files.length;i++){
+      const f=files[i]; b.textContent = 'Wird hochgeladen '+(i+1)+'/'+files.length+' …';
+      const bar = files.length>1 ? $('#fi'+i+' .progress i') : (()=>{ const p=$('#p1'); p.style.display='block'; return p.firstChild; })();
+      const title = files.length>1 ? f.name.replace(/\.(litematic|schem|nbt)$/i,'').replace(/[_-]+/g,' ') : $('#u-title').value;
+      const fmt = (f.name.match(/\.(litematic|schem|nbt)$/i)||[,'litematic'])[1].toLowerCase();
+      try { const d = await send(f, {title, descr:$('#u-desc').value, tags:$('#u-tags').value, public:$('#u-pub').checked?1:0, format:fmt}, bar); lastId=d.id; if(bar) bar.style.width='100%'; }
+      catch(err){ fails.push(f.name+': '+err.message); }
+    }
+    if (fails.length){ $('#u-err').innerHTML = fails.map(esc).join('<br>'); b.disabled=false; b.textContent='Hochladen'; if(lastId) toast((files.length-fails.length)+' hochgeladen'); return; }
+    toast(files.length>1 ? files.length+' Schematics hochgeladen!' : 'Hochgeladen!'); location.hash = files.length>1 ? '#/mine' : '#/s/'+lastId;
+  };
+}
+
+function pageMod(){
+  setTitle('Blueprint-Mod');
+  $('#app').innerHTML = `<div class="hero" style="padding-bottom:10px;grid-template-columns:1fr"><div><h1 style="font-size:44px">Die <b>Blueprint-Mod</b></h1><p>Zeigt ein Schematic als Blaupause direkt in deiner Welt und richtet es automatisch auf dein Geb&auml;ude aus. Nur eine Anzeige, es wird nichts an den Server gesendet.</p></div></div>
+    <div class="detail" style="margin-top:10px"><div class="panel"><h3 style="margin:0 0 10px">Was sie kann</h3><ul style="color:var(--mute);padding-left:20px;margin:0">
+    <li>Bl&ouml;cke als farbige Kasten anzeigen: <b style="color:#22dd22">gr&uuml;n</b> = richtig, <b style="color:#ffaa00">orange</b> = falsch gedreht, <b style="color:#ff2222">rot</b> = falscher Block im Weg</li>
+    <li>Automatisch ausrichten: sie erkennt schon gebaute Bl&ouml;cke und passt Position und Drehung an</li>
+    <li>Beim Draufschauen steht der Blockname dar&uuml;ber</li><li>Ebenen einzeln anzeigen, Materialliste im Chat</li>
+    <li>Fortschrittsanzeige oben links im Spiel: &bdquo;432 / 1254 (34 %)&ldquo; mit Balken</li><li>Schematics direkt von dieser Seite laden</li></ul>
+    <h3 style="margin:18px 0 8px">Befehle</h3><table>
+    <tr><td><code>/blueprint get &lt;nummer&gt;</code></td><td>Von dieser Seite laden und ausrichten</td></tr>
+    <tr><td><code>/blueprint load &lt;name&gt;</code></td><td>Schematic aus dem Ordner laden und ausrichten</td></tr>
+    <tr><td><code>/blueprint align</code></td><td>Neu ausrichten</td></tr>
+    <tr><td><code>/blueprint here</code> / <code>move x y z</code></td><td>Verschieben</td></tr>
+    <tr><td><code>/blueprint rotate</code></td><td>Drehen</td></tr>
+    <tr><td><code>/blueprint layer 1</code> / <code>up</code> / <code>down</code> / <code>off</code></td><td>Ebene w&auml;hlen</td></tr>
+    <tr><td><code>/blueprint only &lt;block&gt;</code></td><td>Nur eine Blockart</td></tr>
+    <tr><td><code>/blueprint list</code></td><td>Was fehlt noch?</td></tr>
+    <tr><td><code>/blueprint off</code> / <code>on</code></td><td>Aus und an</td></tr></table></div>
+    <div><div class="panel"><a class="btn pri" style="display:block;text-align:center;padding:14px" href="/mods/blueprint.jar" download>&darr; Blueprint-Mod herunterladen</a>
+    <p class="mute" style="font-size:13px">blueprint-1.0.0.jar &middot; f&uuml;r Minecraft 26.2 mit Fabric</p></div>
+    <div class="panel" style="margin-top:18px"><h3 style="margin:0 0 6px">Installieren</h3><ol class="steps">
+    <li>Du brauchst Minecraft <b>26.2</b> mit <b>Fabric</b> und die <b>Fabric API</b>.</li>
+    <li>Lege die heruntergeladene <code>.jar</code> in den Ordner <code>mods</code> deines Profils (bei Lunar: das Profil &ouml;ffnen).</li>
+    <li>Lege deine Schematics in den Ordner <code>schematics</code> desselben Profils.</li>
+    <li>Im Spiel: <code>/blueprint load name</code>. Der Name muss nur der Anfang des Dateinamens sein.</li></ol>
+    <p class="mute" style="font-size:13px">Zum Laden des Schematics in Litematica selbst brauchst du die Blueprint-Mod nicht. Die Dateien von dieser Seite funktionieren auch mit der offiziellen Litematica.</p></div></div></div>`;
+}
+
+// ---------------------------------------------------------------- Bild-Helfer
+async function imageToJpeg(file, w, h, q=0.88){
+  const url = URL.createObjectURL(file);
+  const img = await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=()=>rej(new Error('Das Bild konnte nicht gelesen werden.')); i.src=url; });
+  const c = document.createElement('canvas'); c.width=w; c.height=h; const x=c.getContext('2d');
+  const k = Math.max(w/img.width, h/img.height), sw = w/k, sh = h/k;
+  x.drawImage(img, (img.width-sw)/2, (img.height-sh)/2, sw, sh, 0, 0, w, h);
+  URL.revokeObjectURL(url);
+  return new Promise(r=>c.toBlob(r,'image/jpeg',q));
+}
+function dataUrlToBlob(u){ const b=atob(u.split(',')[1]); const a=new Uint8Array(b.length); for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return new Blob([a],{type:'image/jpeg'}); }
+const putRaw = (path, blob) => api(path, {method:'POST', headers:{'Content-Type':'application/octet-stream'}, body: blob});
+
+// ---------------------------------------------------------------- Benachrichtigungen
+async function refreshBell(){
+  if (!me) { $('#bell').style.display='none'; return; }
+  $('#bell').style.display = '';
+  try { const u=(await api('/api/me')).user; if(!u) return; const b=$('#badge'); b.textContent = u.unread>9 ? '9+' : u.unread; b.style.display = u.unread ? 'grid' : 'none'; } catch(e){}
+}
+$('#bell').onclick = async e => {
+  e.stopPropagation(); const m=$('#nmenu'); $('#menu').classList.remove('on');
+  if (m.classList.contains('on')) { m.classList.remove('on'); return; }
+  try {
+    const d = await api('/api/notifications');
+    m.innerHTML = d.items.length ? d.items.map(n=>`<a class="nitem${n.read?'':' un'}" href="${esc(n.link||'#/')}">${esc(n.text)}<small>${ago(n.created)}</small></a>`).join('') : '<div class="mute" style="padding:14px">Keine Benachrichtigungen.</div>';
+    m.classList.add('on');
+    if (d.unread) { await post('/api/notifications/read'); $('#badge').style.display='none'; }
+  } catch(err){ toast(err.message); }
+};
+document.addEventListener('click', e => { if (!e.target.closest('#nmenu') || e.target.closest('a')) $('#nmenu').classList.remove('on'); });
+setInterval(refreshBell, 60000);
+
+// ---------------------------------------------------------------- Dialoge: Sammlung waehlen, Melden
+function openBox(html){ $('#box2').innerHTML = html; $('#box2').style.width=''; $('#modal2').classList.add('on'); }
+function closeBox(){ $('#modal2').classList.remove('on'); $('#box2').style.width=''; }
+async function openCollectionPicker(sid){
+  if (!me) { openAuth('login'); return; }
+  let d; try { d = await api('/api/collections?mine=1&sid='+sid); } catch(e){ toast(e.message); return; }
+  openBox(`<h3 style="margin-top:0">Zu Sammlung hinzuf&uuml;gen</h3><div id="cp-list">${d.items.map(c=>`<label class="row" style="grid-auto-flow:column;justify-content:start;padding:6px 0;font-weight:600"><input type="checkbox" data-c="${c.id}" ${c.has?'checked':''}> ${esc(c.name)} <span class="mute" style="font-weight:400">(${c.count})</span></label>`).join('') || '<div class="mute">Noch keine Sammlung.</div>'}</div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><form id="cp-new" class="row"><input type="text" id="cp-name" placeholder="Neue Sammlung …" maxlength="60" style="flex:1"><button class="btn pri" type="submit">Anlegen</button></form>
+    <div class="row" style="margin-top:14px"><button class="btn" id="cp-close">Fertig</button></div>`);
+  $('#cp-close').onclick = closeBox;
+  $('#cp-list').onchange = async e=>{ const id=e.target.dataset.c; if(!id) return; try{ await post('/api/collections/'+id+(e.target.checked?'/add':'/remove'),{schematic_id:sid}); toast(e.target.checked?'Hinzugefügt':'Entfernt'); }catch(err){ toast(err.message); e.target.checked=!e.target.checked; } };
+  $('#cp-new').onsubmit = async e=>{ e.preventDefault(); const name=$('#cp-name').value.trim(); if(name.length<2) return; try{ const c=await post('/api/collections',{name,public:true}); await post('/api/collections/'+c.id+'/add',{schematic_id:sid}); toast('Sammlung angelegt'); openCollectionPicker(sid); }catch(err){ toast(err.message); } };
+}
+function openReport(kind, id){
+  if (!me) { openAuth('login'); return; }
+  openBox(`<h3 style="margin-top:0">${kind==='comment'?'Kommentar':'Schematic'} melden</h3><form id="rp-form" style="display:grid;gap:10px"><label>Was ist das Problem?<textarea id="rp-text" rows="4" maxlength="500" required></textarea></label><div class="err" id="rp-err"></div>
+    <div class="row"><button class="btn pri" type="submit">Meldung senden</button><button class="btn" type="button" id="rp-cancel">Abbrechen</button></div></form>`);
+  $('#rp-cancel').onclick = closeBox;
+  $('#rp-form').onsubmit = async e=>{ e.preventDefault(); try{ await post('/api/report',{kind,id,reason:$('#rp-text').value}); closeBox(); toast('Danke, die Meldung wurde gesendet.'); }catch(err){ $('#rp-err').textContent=err.message; } };
+}
+function starsHtml(v){ return [1,2,3,4,5].map(i=>`<span data-s="${i}" class="${i<=Math.round(v||0)?'on':''}">★</span>`).join(''); }
+
+// ---------------------------------------------------------------- Karten-Klicks (fuer alle Listen)
+function cardClicks(el){
+  el.onclick = async e=>{
+    const hb = e.target.closest('[data-like]'); if (hb){ e.stopPropagation(); try{ await toggleLike(hb.dataset.like, hb); }catch(err){ toast(err.message); } return; }
+    const ub = e.target.closest('[data-user]'); if (ub){ e.stopPropagation(); location.hash = '#/u/'+ub.dataset.user; return; }
+    const c = e.target.closest('.card'); if (c) location.hash = '#/s/'+c.dataset.id;
+  };
+}
+function gridPage(title, items, emptyText, extraHead=''){
+  setTitle(title.replace(/<[^>]+>/g,''));
+  $('#app').innerHTML = `<h1 style="margin:34px 0 0;font-size:38px">${title}</h1>${extraHead}<div id="list">${items.length ? '<div class="grid">'+items.map(cardHtml).join('')+'</div>' : '<div class="empty">'+emptyText+'</div>'}</div>`;
+  cardClicks($('#list')); lazyThumbs(items);
+}
+
+// ---------------------------------------------------------------- Rangliste, Feed, Sammlungen, Admin
+async function pageTop(){
+  setTitle('Rangliste');
+  $('#app').innerHTML = '<h1 style="margin:34px 0 0;font-size:38px">Die <b style="color:var(--accent)">Rangliste</b></h1><div id="toprows" class="toprow"><div class="skeleton"></div><div class="skeleton"></div></div>';
+  let d; try { d = await api('/api/ranking'); } catch(e){ $('#toprows').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; return; }
+  const list = (title, items, stat) => `<div class="panel" style="padding:0;overflow:hidden"><h3 style="margin:0;padding:16px 18px 8px">${title}</h3>${items.length ? items.map((s,i)=>`<div class="rank" data-id="${s.id}"><span class="n">${i+1}</span><img ${s.cover?`src="/api/schematics/${s.id}/cover?v=${s.cover}"`:`data-th="${s.id}"`} alt=""><div class="t"><b>${esc(s.title)}</b><span class="mute" style="font-size:13px">von ${esc(s.author)}</span></div><span class="mute" style="white-space:nowrap">${stat(s)}</span></div>`).join('') : '<div class="mute" style="padding:6px 18px 18px">Noch nichts hier.</div>'}</div>`;
+  const builders = `<div class="panel" style="padding:0;overflow:hidden"><h3 style="margin:0;padding:16px 18px 8px">Top-Bauer</h3>${d.builders.length ? d.builders.map((b,i)=>`<div class="rank" data-user="${esc(b.name)}"><span class="n">${i+1}</span>${avatar(b.name,'',b.av)}<div class="t"><b>${esc(b.name)}</b><span class="mute" style="font-size:13px">${b.uploads} Schematics &middot; ${num(b.downloads)} Downloads</span></div><span class="mute">♥ ${b.likes}</span></div>`).join('') : '<div class="mute" style="padding:6px 18px 18px">Noch nichts hier.</div>'}</div>`;
+  $('#toprows').innerHTML = list('Diese Woche beliebt', d.liked_week, s=>'♥ '+s.likes) + list('Beste Bewertung', d.best_rated, s=>'★ '+s.rating.toFixed(1)+' ('+s.rating_n+')') + list('Meiste Downloads', d.downloads, s=>'↓ '+num(s.downloads)) + builders;
+  $('#toprows').onclick = e=>{ const r=e.target.closest('.rank'); if(!r) return; location.hash = r.dataset.user ? '#/u/'+r.dataset.user : '#/s/'+r.dataset.id; };
+  $$('#toprows img[data-th]').forEach(img=>thumbFor(+img.dataset.th).then(u=>{ if(u) img.src=u; }));
+}
+async function pageFeed(){
+  if (!me) { setTitle('Feed'); $('#app').innerHTML='<div class="empty"><h2>Bitte einloggen</h2><p>Im Feed siehst du neue Schematics von Bauern, denen du folgst.</p><button class="btn pri" id="go">Einloggen</button></div>'; $('#go').onclick=()=>openAuth('login'); return; }
+  let d; try { d = await api('/api/feed'); } catch(e){ $('#app').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; return; }
+  gridPage('Dein <b style="color:var(--accent)">Feed</b>', d.items, 'Hier erscheinen neue Schematics von Bauern, denen du folgst. Besuche ein Profil und tippe auf &bdquo;Folgen&ldquo;.');
+}
+function colCard(c){
+  const sq = Array.from({length:4},(_,i)=> c.covers[i] ? `<div><img data-th="${c.covers[i]}" alt=""></div>` : '<div></div>').join('');
+  return `<div class="ccard" data-c="${c.id}"><div class="mosaic">${sq}</div><div class="info"><h3>${esc(c.name)}</h3><div class="meta"><span>von ${esc(c.owner)}</span><span>${c.count} Schematics</span>${c.public?'':'<span>privat</span>'}</div></div></div>`;
+}
+async function pageCollections(){
+  setTitle('Sammlungen');
+  $('#app').innerHTML = `<div class="row" style="justify-content:space-between;margin-top:34px"><h1 style="margin:0;font-size:38px">Sammlungen</h1>${me?'<button class="btn pri" id="newcol">+ Neue Sammlung</button>':''}</div><div id="mycols"></div><h3 style="margin:26px 0 0">Alle &ouml;ffentlichen Sammlungen</h3><div id="allcols" class="cgrid"><div class="skeleton"></div></div>`;
+  const fill = (el, items, empty) => { el.innerHTML = items.length ? items.map(colCard).join('') : '<div class="empty" style="grid-column:1/-1;padding:30px 0">'+empty+'</div>'; $$('img[data-th]', el).forEach(img=>thumbFor(+img.dataset.th).then(u=>{ if(u) img.src=u; })); };
+  try { const all = await api('/api/collections'); fill($('#allcols'), all.items, 'Noch keine Sammlungen.'); } catch(e){ $('#allcols').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; }
+  if (me) { try { const mine = await api('/api/collections?mine=1'); $('#mycols').innerHTML = '<h3 style="margin:26px 0 0">Meine Sammlungen</h3><div id="mine2" class="cgrid"></div>'; fill($('#mine2'), mine.items, 'Du hast noch keine Sammlung. Lege eine an!'); } catch(e){} }
+  $('#app').onclick = e=>{ const c=e.target.closest('.ccard'); if(c) location.hash='#/c/'+c.dataset.c; };
+  const nb=$('#newcol'); if(nb) nb.onclick = ()=>{
+    openBox(`<h3 style="margin-top:0">Neue Sammlung</h3><form id="nc-form" style="display:grid;gap:10px"><label>Name<input type="text" id="nc-name" maxlength="60" required></label><label>Beschreibung<textarea id="nc-desc" rows="3" maxlength="500"></textarea></label>
+      <label class="row" style="grid-auto-flow:column;justify-content:start"><input type="checkbox" id="nc-pub" checked> F&uuml;r alle sichtbar</label><div class="err" id="nc-err"></div><div class="row"><button class="btn pri" type="submit">Anlegen</button><button class="btn" type="button" id="nc-cancel">Abbrechen</button></div></form>`);
+    $('#nc-cancel').onclick = closeBox;
+    $('#nc-form').onsubmit = async e=>{ e.preventDefault(); try{ const c=await post('/api/collections',{name:$('#nc-name').value,descr:$('#nc-desc').value,public:$('#nc-pub').checked}); closeBox(); location.hash='#/c/'+c.id; }catch(err){ $('#nc-err').textContent=err.message; } };
+  };
+}
+async function pageCollection(id){
+  let d; try { d = await api('/api/collections/'+id); } catch(e){ $('#app').innerHTML='<div class="empty"><h2>'+esc(e.message)+'</h2></div>'; return; }
+  setTitle(d.name);
+  $('#app').innerHTML = `<div style="padding:34px 0 0"><a href="#/collections" class="mute">&larr; Alle Sammlungen</a><div class="row" style="justify-content:space-between;align-items:flex-start;margin-top:8px"><div><h1 style="margin:0;font-size:38px">${esc(d.name)}</h1><div class="mute">von <a href="#/u/${esc(d.owner)}">${esc(d.owner)}</a> &middot; ${d.count} Schematics${d.public?'':' &middot; privat'}</div>${d.descr?`<p style="max-width:640px;white-space:pre-wrap">${esc(d.descr)}</p>`:''}</div>
+    ${d.mine?'<div class="row"><button class="btn" id="col-edit">Bearbeiten</button><button class="btn dng" id="col-del">L&ouml;schen</button></div>':''}</div></div><div id="list">${d.items.length?'<div class="grid">'+d.items.map(cardHtml).join('')+'</div>':'<div class="empty">Diese Sammlung ist noch leer.</div>'}</div>`;
+  const list = $('#list'); cardClicks(list); lazyThumbs(d.items);
+  if (d.mine) {
+    $$('.card', list).forEach(c=>c.insertAdjacentHTML('beforeend', `<button class="btn sm dng" data-rm="${c.dataset.id}" style="position:absolute;left:8px;top:8px">Entfernen</button>`));
+    list.addEventListener('click', async e=>{ const b=e.target.closest('[data-rm]'); if(!b) return; e.stopPropagation(); await post('/api/collections/'+id+'/remove',{schematic_id:+b.dataset.rm}); toast('Entfernt'); pageCollection(id); }, true);
+    $('#col-del').onclick = async()=>{ if(!confirm('Sammlung löschen? Die Schematics bleiben erhalten.')) return; await api('/api/collections/'+id,{method:'DELETE'}); toast('Gelöscht'); location.hash='#/collections'; };
+    $('#col-edit').onclick = ()=>{
+      openBox(`<h3 style="margin-top:0">Sammlung bearbeiten</h3><form id="ce-form" style="display:grid;gap:10px"><label>Name<input type="text" id="ce-name" maxlength="60" value="${esc(d.name)}" required></label><label>Beschreibung<textarea id="ce-desc" rows="3" maxlength="500">${esc(d.descr)}</textarea></label>
+        <label class="row" style="grid-auto-flow:column;justify-content:start"><input type="checkbox" id="ce-pub" ${d.public?'checked':''}> F&uuml;r alle sichtbar</label><div class="err" id="ce-err"></div><div class="row"><button class="btn pri" type="submit">Speichern</button><button class="btn" type="button" id="ce-cancel">Abbrechen</button></div></form>`);
+      $('#ce-cancel').onclick = closeBox;
+      $('#ce-form').onsubmit = async e=>{ e.preventDefault(); try{ await post('/api/collections/'+id+'/edit',{name:$('#ce-name').value,descr:$('#ce-desc').value,public:$('#ce-pub').checked}); closeBox(); pageCollection(id); }catch(err){ $('#ce-err').textContent=err.message; } };
+    };
+  }
+}
+async function pageAdmin(){
+  setTitle('Admin');
+  if (!me || !me.admin) { $('#app').innerHTML='<div class="empty"><h2>Nur f&uuml;r Admins</h2></div>'; return; }
+  $('#app').innerHTML = '<h1 style="margin:34px 0 14px;font-size:38px">Admin &middot; Meldungen</h1><div id="reps"><div class="skeleton" style="height:120px"></div></div>';
+  async function load(){
+    let d; try { d = await api('/api/admin/reports'); } catch(e){ $('#reps').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; return; }
+    $('#reps').innerHTML = d.items.length ? d.items.map(r=>`<div class="panel" style="margin-bottom:12px"><div class="row" style="justify-content:space-between;align-items:flex-start"><div style="min-width:0"><b>${r.kind==='schematic'?'Schematic':'Kommentar'}: ${r.title?esc(r.title):'<i>(schon gelöscht)</i>'}</b><div class="mute" style="font-size:13px">von ${esc(r.author||'?')} &middot; gemeldet von ${esc(r.reporter)} &middot; ${ago(r.created)}</div><p style="margin:8px 0;white-space:pre-wrap">${esc(r.reason)}</p></div>
+      <div class="row">${r.link?`<a class="btn sm" href="${esc(r.link)}">Ansehen</a>`:''}<button class="btn sm dng" data-del="${r.id}">Inhalt l&ouml;schen</button><button class="btn sm" data-ok="${r.id}">Ablehnen</button></div></div></div>`).join('') : '<div class="empty">Keine offenen Meldungen. \u{1F389}</div>';
+  }
+  $('#reps').onclick = async e=>{ const del=e.target.closest('[data-del]'), ok=e.target.closest('[data-ok]'); const b=del||ok; if(!b) return;
+    if (del && !confirm('Den gemeldeten Inhalt wirklich löschen?')) return;
+    await post('/api/admin/reports/'+(del?del:ok).dataset[del?'del':'ok']+'/resolve',{action: del?'delete':'dismiss'}); toast('Erledigt'); load(); };
+  load();
+}
+
+
+function route(){
+  cleanup();
+  const h = location.hash || '#/';
+  $$('nav a').forEach(a=>a.classList.toggle('on', a.dataset.nav===h || (a.dataset.nav==='#/' && /^#\/(s|u)\//.test(h)) || (a.dataset.nav==='#/collections' && /^#\/c\//.test(h))));
+  window.scrollTo(0,0);
+  let m;
+  if ((m=h.match(/^#\/s\/(\d+)$/))) return pageDetail(+m[1]);
+  if ((m=h.match(/^#\/u\/([A-Za-z0-9_]+)$/))) return pageList({mode:'user', user:m[1]});
+  if ((m=h.match(/^#\/c\/(\d+)$/))) return pageCollection(+m[1]);
+  if (h==='#/top') return pageTop();
+  if (h==='#/collections') return pageCollections();
+  if (h==='#/feed') return pageFeed();
+  if (h==='#/admin') return pageAdmin();
+  if (h==='#/upload') return pageUpload();
+  if (h==='#/mod') return pageMod();
+  if (h==='#/mine' || h==='#/favs') {
+    if(!me){ setTitle(''); $('#app').innerHTML='<div class="empty"><h2>Bitte einloggen</h2><button class="btn pri" id="go">Einloggen</button></div>'; $('#go').onclick=()=>openAuth('login'); return; }
+    return pageList({mode: h==='#/mine' ? 'mine' : 'favs'});
+  }
+  return pageList({mode:'home'});
+}
+$$('nav a').forEach(a=>a.onclick=()=>{ location.hash=a.dataset.nav; });
+$('#logo').onclick=()=>{ location.hash='#/'; };
+window.addEventListener('hashchange', route);
+document.addEventListener('keydown', e=>{ if (e.key==='/' && !/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) { const q=$('#q'); if(q){ e.preventDefault(); q.focus(); } } if (e.key==='Escape') { $('#modal').classList.remove('on'); $('#modal2').classList.remove('on'); } });
+$('#theme').onclick = $('#theme').onclick;
+$('#lang').onclick = ()=>setLang(LANG==='en' ? 'de' : 'en');
+startI18n(); $('#lang').textContent = LANG==='en' ? 'DE' : 'EN';
+(async()=>{ try{ SITE=await api('/api/info'); }catch(e){} try{ me=(await api('/api/me')).user; }catch(e){} renderAuth(); if (SITE.public) { const f=$('footer .wrap'); f.insertAdjacentHTML('beforeend','<div style="margin-top:6px">Die Vorschau nutzt selbst gezeichnete Texturen im Minecraft-Stil. Minecraft ist eine Marke von Mojang, diese Seite ist nicht mit Mojang verbunden.</div>'); } route(); })();
+</script>
+</body>
+</html>
